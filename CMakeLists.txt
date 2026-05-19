@@ -7,6 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(oop_project
     src/main.cpp
+    src/models/Book.cpp
+    src/models/User.cpp
+    src/models/Admin.cpp
+    src/models/Member.cpp
+    src/models/Loan.cpp
 )
 
 target_include_directories(oop_project PRIVATE include)

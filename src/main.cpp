@@ -2,17 +2,20 @@
 #include "repositories/CsvLoanRepository.hpp"
 #include "repositories/CsvReservationRepository.hpp"
 #include "services/LoanService.hpp"
+#include "repositories/CsvMemberRepository.hpp"
 
 #include <iostream>
 
 int main() {
     CsvBookRepository bookRepository("data/books.csv");
     CsvLoanRepository loanRepository("data/loans.csv");
+    CsvMemberRepository memberRepository("data/members.csv");
     CsvReservationRepository reservationRepository("data/reservations.csv");
 
     LoanService loanService(
         bookRepository,
         loanRepository,
+        memberRepository,
         reservationRepository
     );
 

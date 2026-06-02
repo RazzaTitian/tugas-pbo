@@ -3,10 +3,12 @@
 LoanService::LoanService(
     CsvBookRepository& bookRepository,
     CsvLoanRepository& loanRepository,
+    CsvMemberRepository& memberRepository,
     CsvReservationRepository& reservationRepository
 )
     : bookRepository_(bookRepository),
       loanRepository_(loanRepository),
+      memberRepository_(memberRepository),
       reservationRepository_(reservationRepository) {}
 
 bool LoanService::borrowBook(
@@ -15,6 +17,12 @@ bool LoanService::borrowBook(
     const std::string& borrowDate,
     const std::string& dueDate
 ) {
+    auto memberOpt = memberRepository_.findById(memberId);
+
+    if (!memberOpt.has_value()) {
+        return false;
+    }
+
     auto bookOpt = bookRepository_.findById(bookId);
 
     if (!bookOpt.has_value()) {
@@ -84,6 +92,12 @@ bool LoanService::returnBook(
     if (reservationOpt.has_value()) {
         Reservation reservation = reservationOpt.value();
 
+        auto memberOpt = memberRepository_.findById(reservation.memberId());
+
+        if (!memberOpt.has_value()) {
+            return false;
+        }
+
         Loan nextLoan(
             loanRepository_.nextId(),
             book.id(),
@@ -116,6 +130,12 @@ bool LoanService::reserveBook(
     const std::string& memberId,
     const std::string& reservedAt
 ) {
+    auto memberOpt = memberRepository_.findById(memberId);
+
+    if (!memberOpt.has_value()) {
+        return false;
+    }
+
     auto bookOpt = bookRepository_.findById(bookId);
 
     if (!bookOpt.has_value()) {

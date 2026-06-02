@@ -3,6 +3,7 @@
 #include "models/Loan.hpp"
 #include "repositories/CsvBookRepository.hpp"
 #include "repositories/CsvLoanRepository.hpp"
+#include "repositories/CsvMemberRepository.hpp"
 #include "repositories/CsvReservationRepository.hpp"
 
 #include <string>
@@ -12,12 +13,14 @@ class LoanService {
 private:
     CsvBookRepository& bookRepository_;
     CsvLoanRepository& loanRepository_;
+    CsvMemberRepository& memberRepository_;
     CsvReservationRepository& reservationRepository_;
 
 public:
     LoanService(
         CsvBookRepository& bookRepository,
         CsvLoanRepository& loanRepository,
+        CsvMemberRepository& memberRepository,
         CsvReservationRepository& reservationRepository
     );
 

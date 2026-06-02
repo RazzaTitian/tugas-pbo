@@ -73,8 +73,7 @@ void AdminCli::showMainMenu() {
         } else if (choice == "3") {
             showLoanMenu();
         } else if (choice == "4") {
-            std::cout << "\nReports coming next.\n";
-            waitForEnter();
+            showReportsMenu();
         } else if (choice == "Q" || choice == "q") {
             running = false;
         } else {
@@ -457,6 +456,85 @@ void AdminCli::listActiveLoans() {
 
     if (loans.empty()) {
         std::cout << "No active loans found.\n";
+        waitForEnter();
+        return;
+    }
+
+    for (const Loan& loan : loans) {
+        std::cout << loan << '\n';
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::showReportsMenu() {
+    bool running = true;
+
+    while (running) {
+        std::cout << "\n========== Reports ==========\n";
+        std::cout << "[1] Book summary\n";
+        std::cout << "[2] Member summary\n";
+        std::cout << "[3] Active loan summary\n";
+        std::cout << "[B] Back\n";
+
+        std::string choice = readLine("Choice: ");
+
+        if (choice == "1") {
+            reportBooks();
+        } else if (choice == "2") {
+            reportMembers();
+        } else if (choice == "3") {
+            reportActiveLoans();
+        } else if (choice == "B" || choice == "b") {
+            running = false;
+        } else {
+            std::cout << "\nInvalid choice.\n";
+            waitForEnter();
+        }
+    }
+}
+
+void AdminCli::reportBooks() {
+    std::cout << "\n========== Book Summary ==========\n";
+
+    std::vector<Book> books = bookService_.listBooks();
+
+    int availableCount = 0;
+    int onLoanCount = 0;
+
+    for (const Book& book : books) {
+        if (book.isAvailable()) {
+            ++availableCount;
+        } else {
+            ++onLoanCount;
+        }
+    }
+
+    std::cout << "Total books     : " << books.size() << '\n';
+    std::cout << "Available books : " << availableCount << '\n';
+    std::cout << "Books on loan   : " << onLoanCount << '\n';
+
+    waitForEnter();
+}
+
+void AdminCli::reportMembers() {
+    std::cout << "\n========== Member Summary ==========\n";
+
+    std::vector<Member> members = memberService_.listMembers();
+
+    std::cout << "Total members: " << members.size() << '\n';
+
+    waitForEnter();
+}
+
+void AdminCli::reportActiveLoans() {
+    std::cout << "\n========== Active Loan Summary ==========\n";
+
+    std::vector<Loan> loans = loanService_.listActiveLoans();
+
+    std::cout << "Total active loans: " << loans.size() << "\n\n";
+
+    if (loans.empty()) {
         waitForEnter();
         return;
     }

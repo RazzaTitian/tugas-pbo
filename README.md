@@ -7,7 +7,7 @@ Universitas Gadjah Mada
 ## Author
 
 - Name: Muhammad Razza Titian Jiwani
-- NIM: [INSERT NIM HERE]
+- NIM: 21/475348/TK/52470
 - Course: Object-Oriented Programming (C++)
 
 ---

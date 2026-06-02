@@ -23,6 +23,7 @@ add_executable(oop_project
     src/services/BookService.cpp
     src/services/MemberService.cpp
     src/services/AdminService.cpp
+    src/cli/AdminCli.cpp
 )
 
 target_include_directories(oop_project PRIVATE include)

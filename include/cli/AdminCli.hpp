@@ -19,6 +19,7 @@ private:
     void showMainMenu();
     void showBookMenu();
     void showMemberMenu();
+    void showLoanMenu();
 
     void listBooks();
     void addBook();
@@ -29,6 +30,11 @@ private:
     void addMember();
     void deleteMember();
     void viewMemberLoans();
+
+    void issueLoan();
+    void returnLoan();
+    void reserveBook();
+    void listActiveLoans();
 
     int readInt(const std::string& prompt) const;
     std::string readLine(const std::string& prompt) const;

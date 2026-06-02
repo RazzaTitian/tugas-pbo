@@ -71,8 +71,7 @@ void AdminCli::showMainMenu() {
         } else if (choice == "2") {
             showMemberMenu();
         } else if (choice == "3") {
-            std::cout << "\nLoan workflow coming next.\n";
-            waitForEnter();
+            showLoanMenu();
         } else if (choice == "4") {
             std::cout << "\nReports coming next.\n";
             waitForEnter();
@@ -345,6 +344,122 @@ void AdminCli::viewMemberLoans() {
     }
 
     std::cout << "\nLoan history:\n";
+
+    for (const Loan& loan : loans) {
+        std::cout << loan << '\n';
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::showLoanMenu() {
+    bool running = true;
+
+    while (running) {
+        std::cout << "\n========== Loan Workflow ==========\n";
+        std::cout << "[1] Issue loan\n";
+        std::cout << "[2] Return loan\n";
+        std::cout << "[3] Reserve book\n";
+        std::cout << "[4] List active loans\n";
+        std::cout << "[B] Back\n";
+
+        std::string choice = readLine("Choice: ");
+
+        if (choice == "1") {
+            issueLoan();
+        } else if (choice == "2") {
+            returnLoan();
+        } else if (choice == "3") {
+            reserveBook();
+        } else if (choice == "4") {
+            listActiveLoans();
+        } else if (choice == "B" || choice == "b") {
+            running = false;
+        } else {
+            std::cout << "\nInvalid choice.\n";
+            waitForEnter();
+        }
+    }
+}
+
+void AdminCli::issueLoan() {
+    std::cout << "\n========== Issue Loan ==========\n";
+
+    int bookId = readInt("Book ID: ");
+    std::string memberId = readLine("Member ID: ");
+    std::string borrowDate = readLine("Borrow date (YYYY-MM-DD): ");
+    std::string dueDate = readLine("Due date (YYYY-MM-DD): ");
+
+    if (memberId.empty() || borrowDate.empty() || dueDate.empty()) {
+        std::cout << "\n[ERROR] All fields are required.\n";
+        waitForEnter();
+        return;
+    }
+
+    if (loanService_.borrowBook(bookId, memberId, borrowDate, dueDate)) {
+        std::cout << "\n[OK] Loan issued successfully.\n";
+    } else {
+        std::cout << "\n[ERROR] Failed to issue loan. Check book availability and member ID.\n";
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::returnLoan() {
+    std::cout << "\n========== Return Loan ==========\n";
+
+    int loanId = readInt("Loan ID: ");
+    std::string returnDate = readLine("Return date (YYYY-MM-DD): ");
+    std::string nextDueDate = readLine("Next due date if reserved (YYYY-MM-DD): ");
+
+    if (returnDate.empty() || nextDueDate.empty()) {
+        std::cout << "\n[ERROR] Return date and next due date are required.\n";
+        waitForEnter();
+        return;
+    }
+
+    if (loanService_.returnBook(loanId, returnDate, nextDueDate)) {
+        std::cout << "\n[OK] Loan returned successfully.\n";
+        std::cout << "[INFO] If the book had a reservation queue, it was assigned automatically.\n";
+    } else {
+        std::cout << "\n[ERROR] Failed to return loan. Check loan ID or loan status.\n";
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::reserveBook() {
+    std::cout << "\n========== Reserve Book ==========\n";
+
+    int bookId = readInt("Book ID: ");
+    std::string memberId = readLine("Member ID: ");
+    std::string reservedAt = readLine("Reservation date (YYYY-MM-DD): ");
+
+    if (memberId.empty() || reservedAt.empty()) {
+        std::cout << "\n[ERROR] All fields are required.\n";
+        waitForEnter();
+        return;
+    }
+
+    if (loanService_.reserveBook(bookId, memberId, reservedAt)) {
+        std::cout << "\n[OK] Book reserved successfully.\n";
+    } else {
+        std::cout << "\n[ERROR] Failed to reserve book. Check book ID, member ID, or duplicate reservation.\n";
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::listActiveLoans() {
+    std::cout << "\n========== Active Loans ==========\n";
+
+    std::vector<Loan> loans = loanService_.listActiveLoans();
+
+    if (loans.empty()) {
+        std::cout << "No active loans found.\n";
+        waitForEnter();
+        return;
+    }
 
     for (const Loan& loan : loans) {
         std::cout << loan << '\n';

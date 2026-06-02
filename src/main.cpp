@@ -1,53 +1,24 @@
 #include "repositories/CsvBookRepository.hpp"
 #include "repositories/CsvLoanRepository.hpp"
-#include "repositories/CsvReservationRepository.hpp"
-#include "services/LoanService.hpp"
-#include "repositories/CsvMemberRepository.hpp"
+#include "services/BookService.hpp"
 
 #include <iostream>
 
 int main() {
     CsvBookRepository bookRepository("data/books.csv");
     CsvLoanRepository loanRepository("data/loans.csv");
-    CsvMemberRepository memberRepository("data/members.csv");
-    CsvReservationRepository reservationRepository("data/reservations.csv");
 
-    LoanService loanService(
-        bookRepository,
-        loanRepository,
-        memberRepository,
-        reservationRepository
-    );
+    BookService bookService(bookRepository, loanRepository);
 
-    bool reserveOk = loanService.reserveBook(
-        3,
-        "M004",
-        "2026-06-03"
-    );
+    bool deleteBook3 = bookService.deleteBook(3);
+    bool deleteBook1 = bookService.deleteBook(1);
 
-    std::cout << "Reserve result: " << (reserveOk ? "success" : "failed") << '\n';
-
-    bool returnOk = loanService.returnBook(
-        3,
-        "2026-06-03",
-        "2026-06-17"
-    );
-
-    std::cout << "Return result: " << (returnOk ? "success" : "failed") << '\n';
+    std::cout << "Delete book 3: " << (deleteBook3 ? "success" : "failed") << '\n';
+    std::cout << "Delete book 1: " << (deleteBook1 ? "success" : "failed") << '\n';
 
     std::cout << "\nBooks:\n";
-    for (const Book& book : bookRepository.listAll()) {
+    for (const Book& book : bookService.listBooks()) {
         std::cout << book << '\n';
-    }
-
-    std::cout << "\nLoans:\n";
-    for (const Loan& loan : loanRepository.listAll()) {
-        std::cout << loan << '\n';
-    }
-
-    std::cout << "\nReservations:\n";
-    for (const Reservation& reservation : reservationRepository.listAll()) {
-        std::cout << reservation << '\n';
     }
 
     return 0;

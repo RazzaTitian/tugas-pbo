@@ -20,6 +20,7 @@ add_executable(oop_project
     src/utils/PasswordHasher.cpp
     src/models/Reservation.cpp
     src/repositories/CsvReservationRepository.cpp
+    src/services/BookService.cpp
 )
 
 target_include_directories(oop_project PRIVATE include)

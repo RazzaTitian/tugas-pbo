@@ -15,7 +15,17 @@ private:
     LoanService& loanService_;
 
     bool login();
+
     void showMainMenu();
+    void showBookMenu();
+
+    void listBooks();
+    void addBook();
+    void searchBooks();
+    void deleteBook();
+
+    int readInt(const std::string& prompt) const;
+    std::string readLine(const std::string& prompt) const;
     void waitForEnter() const;
 
 public:

@@ -4,6 +4,8 @@
 #include <sstream>
 #include <utility>
 #include <vector>
+#include <algorithm>
+#include <cctype>
 
 CsvBookRepository::CsvBookRepository(std::string filePath)
     : filePath_(std::move(filePath)) {}
@@ -27,6 +29,41 @@ Book CsvBookRepository::fromCsvLine(const std::string& line) {
         author,
         availableStr == "1"
     );
+}
+
+namespace {
+    std::string toLower(std::string text) {
+        std::transform(
+            text.begin(),
+            text.end(),
+            text.begin(),
+            [](unsigned char character) {
+                return static_cast<char>(std::tolower(character));
+            }
+        );
+
+        return text;
+    }
+}
+
+std::vector<Book> CsvBookRepository::search(const std::string& keyword) const {
+    std::vector<Book> results;
+
+    std::string loweredKeyword = toLower(keyword);
+
+    for (const Book& book : listAll()) {
+        std::string loweredTitle = toLower(book.title());
+        std::string loweredAuthor = toLower(book.author());
+
+        if (
+            loweredTitle.find(loweredKeyword) != std::string::npos ||
+            loweredAuthor.find(loweredKeyword) != std::string::npos
+        ) {
+            results.push_back(book);
+        }
+    }
+
+    return results;
 }
 
 std::string CsvBookRepository::toCsvLine(const Book& book) {

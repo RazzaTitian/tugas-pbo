@@ -21,4 +21,6 @@ public:
     std::optional<Book> findById(const int& id) const override;
     std::vector<Book> listAll() const override;
     bool remove(const int& id) override;
+
+    std::vector<Book> search(const std::string& keyword) const;
 };

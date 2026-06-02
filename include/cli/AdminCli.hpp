@@ -18,11 +18,17 @@ private:
 
     void showMainMenu();
     void showBookMenu();
+    void showMemberMenu();
 
     void listBooks();
     void addBook();
     void searchBooks();
     void deleteBook();
+
+    void listMembers();
+    void addMember();
+    void deleteMember();
+    void viewMemberLoans();
 
     int readInt(const std::string& prompt) const;
     std::string readLine(const std::string& prompt) const;

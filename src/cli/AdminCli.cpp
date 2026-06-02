@@ -1,10 +1,14 @@
 #include "cli/AdminCli.hpp"
 
 #include "models/Book.hpp"
+#include "models/Member.hpp"
+#include "models/Loan.hpp"
+#include "utils/PasswordHasher.hpp"
 
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 AdminCli::AdminCli(
     AdminService& adminService,
@@ -65,8 +69,7 @@ void AdminCli::showMainMenu() {
         if (choice == "1") {
             showBookMenu();
         } else if (choice == "2") {
-            std::cout << "\nMember management coming next.\n";
-            waitForEnter();
+            showMemberMenu();
         } else if (choice == "3") {
             std::cout << "\nLoan workflow coming next.\n";
             waitForEnter();
@@ -105,6 +108,36 @@ void AdminCli::showBookMenu() {
             searchBooks();
         } else if (choice == "4") {
             deleteBook();
+        } else if (choice == "B" || choice == "b") {
+            running = false;
+        } else {
+            std::cout << "\nInvalid choice.\n";
+            waitForEnter();
+        }
+    }
+}
+
+void AdminCli::showMemberMenu() {
+    bool running = true;
+
+    while (running) {
+        std::cout << "\n========== Member Management ==========\n";
+        std::cout << "[1] List members\n";
+        std::cout << "[2] Add member\n";
+        std::cout << "[3] Delete member\n";
+        std::cout << "[4] View member loan history\n";
+        std::cout << "[B] Back\n";
+
+        std::string choice = readLine("Choice: ");
+
+        if (choice == "1") {
+            listMembers();
+        } else if (choice == "2") {
+            addMember();
+        } else if (choice == "3") {
+            deleteMember();
+        } else if (choice == "4") {
+            viewMemberLoans();
         } else if (choice == "B" || choice == "b") {
             running = false;
         } else {
@@ -205,6 +238,116 @@ void AdminCli::deleteBook() {
         std::cout << "\n[OK] Book deleted successfully.\n";
     } else {
         std::cout << "\n[ERROR] Failed to delete book. The book may have an active loan.\n";
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::listMembers() {
+    std::cout << "\n========== Members ==========\n";
+
+    std::vector<Member> members = memberService_.listMembers();
+
+    if (members.empty()) {
+        std::cout << "No members found.\n";
+        waitForEnter();
+        return;
+    }
+
+    for (const Member& member : members) {
+        std::cout << member << '\n';
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::addMember() {
+    std::cout << "\n========== Add Member ==========\n";
+
+    std::string memberId = readLine("Member ID: ");
+    std::string username = readLine("Username: ");
+    std::string password = readLine("Password: ");
+    std::string name = readLine("Name: ");
+    std::string email = readLine("Email: ");
+
+    if (
+        memberId.empty() ||
+        username.empty() ||
+        password.empty() ||
+        name.empty() ||
+        email.empty()
+    ) {
+        std::cout << "\n[ERROR] All fields are required.\n";
+        waitForEnter();
+        return;
+    }
+
+    if (memberService_.findMemberById(memberId).has_value()) {
+        std::cout << "\n[ERROR] Member ID already exists.\n";
+        waitForEnter();
+        return;
+    }
+
+    Member member(
+        memberId,
+        username,
+        PasswordHasher::hash(password),
+        name,
+        email
+    );
+
+    if (memberService_.addMember(member)) {
+        std::cout << "\n[OK] Member added successfully.\n";
+    } else {
+        std::cout << "\n[ERROR] Failed to add member.\n";
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::deleteMember() {
+    std::cout << "\n========== Delete Member ==========\n";
+
+    std::string memberId = readLine("Member ID: ");
+
+    if (!memberService_.findMemberById(memberId).has_value()) {
+        std::cout << "\n[ERROR] Member not found.\n";
+        waitForEnter();
+        return;
+    }
+
+    if (memberService_.deleteMember(memberId)) {
+        std::cout << "\n[OK] Member deleted successfully.\n";
+    } else {
+        std::cout << "\n[ERROR] Failed to delete member. The member may have an active loan.\n";
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::viewMemberLoans() {
+    std::cout << "\n========== Member Loan History ==========\n";
+
+    std::string memberId = readLine("Member ID: ");
+
+    if (!memberService_.findMemberById(memberId).has_value()) {
+        std::cout << "\n[ERROR] Member not found.\n";
+        waitForEnter();
+        return;
+    }
+
+    std::vector<Loan> loans = memberService_.listMemberLoans(memberId);
+
+    if (loans.empty()) {
+        std::cout << "\nNo loan history found for this member.\n";
+        waitForEnter();
+        return;
+    }
+
+    std::cout << "\nLoan history:\n";
+
+    for (const Loan& loan : loans) {
+        std::cout << loan << '\n';
     }
 
     waitForEnter();

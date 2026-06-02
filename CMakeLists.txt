@@ -15,6 +15,8 @@ add_executable(oop_project
     src/repositories/CsvBookRepository.cpp
     src/repositories/CsvMemberRepository.cpp
     src/repositories/CsvAdminRepository.cpp
+    src/repositories/CsvLoanRepository.cpp
+    src/services/LoanService.cpp
 )
 
 target_include_directories(oop_project PRIVATE include)

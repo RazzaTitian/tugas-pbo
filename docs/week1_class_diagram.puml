@@ -1,0 +1,68 @@
+@startuml uml
+title Week 1 Class Diagram - OOP Borrowing System
+
+skinparam classAttributeIconSize 0
+
+abstract class User {
+  # username_ : string
+  # passwordHash_ : string
+  + username() : string
+  + passwordHash() : string
+  + login(username, passwordHash) : bool
+  + role() : string
+}
+
+class Admin {
+  - displayName_ : string
+  + displayName() : string
+  + role() : string
+  + operator==(other) : bool
+}
+
+class Member {
+  - memberId_ : string
+  - name_ : string
+  - email_ : string
+  + memberId() : string
+  + name() : string
+  + email() : string
+  + role() : string
+  + operator==(other) : bool
+}
+
+class Book {
+  - id_ : int
+  - title_ : string
+  - author_ : string
+  - available_ : bool
+  + id() : int
+  + title() : string
+  + author() : string
+  + isAvailable() : bool
+  + statusText() : string
+  + operator==(other) : bool
+}
+
+class Loan {
+  - loanId_ : int
+  - bookId_ : int
+  - memberId_ : string
+  - borrowDate_ : string
+  - dueDate_ : string
+  - returned_ : bool
+  + loanId() : int
+  + bookId() : int
+  + memberId() : string
+  + isReturned() : bool
+  + isOverdue() : bool
+  + markReturned() : void
+  + operator==(other) : bool
+}
+
+User <|-- Admin
+User <|-- Member
+
+Loan --> Book : references bookId
+Loan --> Member : references memberId
+
+@enduml

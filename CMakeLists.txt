@@ -12,6 +12,7 @@ add_executable(oop_project
     src/models/Admin.cpp
     src/models/Member.cpp
     src/models/Loan.cpp
+    src/repositories/CsvBookRepository.cpp
 )
 
 target_include_directories(oop_project PRIVATE include)

@@ -24,11 +24,13 @@ private:
 
     void listBooks();
     void addBook();
+    void editBook();
     void searchBooks();
     void deleteBook();
 
     void listMembers();
     void addMember();
+    void editMember();
     void deleteMember();
     void viewMemberLoans();
 

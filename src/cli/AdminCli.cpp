@@ -92,8 +92,9 @@ void AdminCli::showBookMenu() {
         std::cout << "\n========== Book Management ==========\n";
         std::cout << "[1] List books\n";
         std::cout << "[2] Add book\n";
-        std::cout << "[3] Search books\n";
-        std::cout << "[4] Delete book\n";
+        std::cout << "[3] Edit book\n";
+        std::cout << "[4] Search books\n";
+        std::cout << "[5] Delete book\n";
         std::cout << "[B] Back\n";
 
         std::string choice = readLine("Choice: ");
@@ -103,8 +104,10 @@ void AdminCli::showBookMenu() {
         } else if (choice == "2") {
             addBook();
         } else if (choice == "3") {
-            searchBooks();
+            editBook();
         } else if (choice == "4") {
+            searchBooks();
+        } else if (choice == "5") {
             deleteBook();
         } else if (choice == "B" || choice == "b") {
             running = false;
@@ -122,8 +125,9 @@ void AdminCli::showMemberMenu() {
         std::cout << "\n========== Member Management ==========\n";
         std::cout << "[1] List members\n";
         std::cout << "[2] Add member\n";
-        std::cout << "[3] Delete member\n";
-        std::cout << "[4] View member loan history\n";
+        std::cout << "[3] Edit member\n";
+        std::cout << "[4] Delete member\n";
+        std::cout << "[5] View member loan history\n";
         std::cout << "[B] Back\n";
 
         std::string choice = readLine("Choice: ");
@@ -133,8 +137,10 @@ void AdminCli::showMemberMenu() {
         } else if (choice == "2") {
             addMember();
         } else if (choice == "3") {
-            deleteMember();
+            editMember();
         } else if (choice == "4") {
+            deleteMember();
+        } else if (choice == "5") {
             viewMemberLoans();
         } else if (choice == "B" || choice == "b") {
             running = false;
@@ -188,6 +194,44 @@ void AdminCli::addBook() {
         std::cout << "\n[OK] Book added successfully.\n";
     } else {
         std::cout << "\n[ERROR] Failed to add book.\n";
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::editBook() {
+    std::cout << "\n========== Edit Book ==========\n";
+
+    int id = readInt("Book ID: ");
+
+    auto bookOpt = bookService_.findBookById(id);
+
+    if (!bookOpt.has_value()) {
+        std::cout << "\n[ERROR] Book not found.\n";
+        waitForEnter();
+        return;
+    }
+
+    Book book = bookOpt.value();
+
+    std::cout << "\nCurrent title : " << book.title() << '\n';
+    std::cout << "Current author: " << book.author() << '\n';
+
+    std::string newTitle = readLine("New title  (leave empty to keep current): ");
+    std::string newAuthor = readLine("New author (leave empty to keep current): ");
+
+    if (!newTitle.empty()) {
+        book.setTitle(newTitle);
+    }
+
+    if (!newAuthor.empty()) {
+        book.setAuthor(newAuthor);
+    }
+
+    if (bookService_.updateBook(book)) {
+        std::cout << "\n[OK] Book updated successfully.\n";
+    } else {
+        std::cout << "\n[ERROR] Failed to update book.\n";
     }
 
     waitForEnter();
@@ -298,6 +342,44 @@ void AdminCli::addMember() {
         std::cout << "\n[OK] Member added successfully.\n";
     } else {
         std::cout << "\n[ERROR] Failed to add member.\n";
+    }
+
+    waitForEnter();
+}
+
+void AdminCli::editMember() {
+    std::cout << "\n========== Edit Member ==========\n";
+
+    std::string memberId = readLine("Member ID: ");
+
+    auto memberOpt = memberService_.findMemberById(memberId);
+
+    if (!memberOpt.has_value()) {
+        std::cout << "\n[ERROR] Member not found.\n";
+        waitForEnter();
+        return;
+    }
+
+    Member member = memberOpt.value();
+
+    std::cout << "\nCurrent name : " << member.name() << '\n';
+    std::cout << "Current email: " << member.email() << '\n';
+
+    std::string newName = readLine("New name  (leave empty to keep current): ");
+    std::string newEmail = readLine("New email (leave empty to keep current): ");
+
+    if (!newName.empty()) {
+        member.setName(newName);
+    }
+
+    if (!newEmail.empty()) {
+        member.setEmail(newEmail);
+    }
+
+    if (memberService_.updateMember(member)) {
+        std::cout << "\n[OK] Member updated successfully.\n";
+    } else {
+        std::cout << "\n[ERROR] Failed to update member.\n";
     }
 
     waitForEnter();

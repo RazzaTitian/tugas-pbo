@@ -1,32 +1,40 @@
-#include "repositories/CsvBookRepository.hpp"
-#include "repositories/CsvLoanRepository.hpp"
-#include "services/LoanService.hpp"
+#include "repositories/CsvAdminRepository.hpp"
+#include "utils/PasswordHasher.hpp"
 
 #include <iostream>
-#include <vector>
+#include <string>
 
 int main() {
-    CsvBookRepository bookRepository("data/books.csv");
-    CsvLoanRepository loanRepository("data/loans.csv");
+    CsvAdminRepository adminRepository("data/admins.csv");
 
-    LoanService loanService(bookRepository, loanRepository);
+    adminRepository.save(Admin(
+        "admin",
+        PasswordHasher::hash("admin123"),
+        "Main Admin"
+    ));
 
-    std::string memberId;
+    std::string username;
+    std::string password;
 
-    std::cout << "Member ID: ";
-    std::getline(std::cin, memberId);
+    std::cout << "Username: ";
+    std::getline(std::cin, username);
 
-    std::vector<Loan> history = loanService.listLoanHistoryByMember(memberId);
+    std::cout << "Password: ";
+    std::getline(std::cin, password);
 
-    std::cout << "\nLoan history for member " << memberId << ":\n\n";
+    auto adminOpt = adminRepository.findById(username);
 
-    if (history.empty()) {
-        std::cout << "No loan history found.\n";
+    if (!adminOpt.has_value()) {
+        std::cout << "Login failed\n";
         return 0;
     }
 
-    for (const Loan& loan : history) {
-        std::cout << loan << '\n';
+    Admin admin = adminOpt.value();
+
+    if (admin.login(username, PasswordHasher::hash(password))) {
+        std::cout << "Login OK\n";
+    } else {
+        std::cout << "Login failed\n";
     }
 
     return 0;

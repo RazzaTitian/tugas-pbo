@@ -1,4 +1,7 @@
 #include "cli/AdminCli.hpp"
+#include "web/WebServer.hpp"
+
+#include "models/Admin.hpp"
 
 #include "repositories/CsvAdminRepository.hpp"
 #include "repositories/CsvBookRepository.hpp"
@@ -11,10 +14,12 @@
 #include "services/LoanService.hpp"
 #include "services/MemberService.hpp"
 
-#include "models/Admin.hpp"
 #include "utils/PasswordHasher.hpp"
 
-int main() {
+#include <iostream>
+#include <string>
+
+int main(int argc, char* argv[]) {
     CsvAdminRepository adminRepository("data/admins.csv");
     CsvBookRepository bookRepository("data/books.csv");
     CsvMemberRepository memberRepository("data/members.csv");
@@ -39,14 +44,39 @@ int main() {
         reservationRepository
     );
 
-    AdminCli adminCli(
-        adminService,
-        bookService,
-        memberService,
-        loanService
-    );
+    std::string mode = "admin";
 
-    adminCli.run();
+    if (argc >= 2) {
+        mode = argv[1];
+    }
 
-    return 0;
+    if (mode == "admin") {
+        AdminCli adminCli(
+            adminService,
+            bookService,
+            memberService,
+            loanService
+        );
+
+        adminCli.run();
+        return 0;
+    }
+
+    if (mode == "web") {
+        WebServer webServer(
+            bookService,
+            memberService,
+            loanService
+        );
+
+        webServer.run(8080);
+        return 0;
+    }
+
+    std::cout << "Unknown mode: " << mode << '\n';
+    std::cout << "Usage:\n";
+    std::cout << "  oop_project admin\n";
+    std::cout << "  oop_project web\n";
+
+    return 1;
 }

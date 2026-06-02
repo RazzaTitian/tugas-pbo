@@ -1,40 +1,50 @@
-#include "repositories/CsvAdminRepository.hpp"
-#include "utils/PasswordHasher.hpp"
+#include "repositories/CsvBookRepository.hpp"
+#include "repositories/CsvLoanRepository.hpp"
+#include "repositories/CsvReservationRepository.hpp"
+#include "services/LoanService.hpp"
 
 #include <iostream>
-#include <string>
 
 int main() {
-    CsvAdminRepository adminRepository("data/admins.csv");
+    CsvBookRepository bookRepository("data/books.csv");
+    CsvLoanRepository loanRepository("data/loans.csv");
+    CsvReservationRepository reservationRepository("data/reservations.csv");
 
-    adminRepository.save(Admin(
-        "admin",
-        PasswordHasher::hash("admin123"),
-        "Main Admin"
-    ));
+    LoanService loanService(
+        bookRepository,
+        loanRepository,
+        reservationRepository
+    );
 
-    std::string username;
-    std::string password;
+    bool reserveOk = loanService.reserveBook(
+        3,
+        "M004",
+        "2026-06-03"
+    );
 
-    std::cout << "Username: ";
-    std::getline(std::cin, username);
+    std::cout << "Reserve result: " << (reserveOk ? "success" : "failed") << '\n';
 
-    std::cout << "Password: ";
-    std::getline(std::cin, password);
+    bool returnOk = loanService.returnBook(
+        3,
+        "2026-06-03",
+        "2026-06-17"
+    );
 
-    auto adminOpt = adminRepository.findById(username);
+    std::cout << "Return result: " << (returnOk ? "success" : "failed") << '\n';
 
-    if (!adminOpt.has_value()) {
-        std::cout << "Login failed\n";
-        return 0;
+    std::cout << "\nBooks:\n";
+    for (const Book& book : bookRepository.listAll()) {
+        std::cout << book << '\n';
     }
 
-    Admin admin = adminOpt.value();
+    std::cout << "\nLoans:\n";
+    for (const Loan& loan : loanRepository.listAll()) {
+        std::cout << loan << '\n';
+    }
 
-    if (admin.login(username, PasswordHasher::hash(password))) {
-        std::cout << "Login OK\n";
-    } else {
-        std::cout << "Login failed\n";
+    std::cout << "\nReservations:\n";
+    for (const Reservation& reservation : reservationRepository.listAll()) {
+        std::cout << reservation << '\n';
     }
 
     return 0;

@@ -3,6 +3,7 @@
 #include "models/Loan.hpp"
 #include "repositories/CsvBookRepository.hpp"
 #include "repositories/CsvLoanRepository.hpp"
+#include "repositories/CsvReservationRepository.hpp"
 
 #include <string>
 #include <vector>
@@ -11,9 +12,14 @@ class LoanService {
 private:
     CsvBookRepository& bookRepository_;
     CsvLoanRepository& loanRepository_;
+    CsvReservationRepository& reservationRepository_;
 
 public:
-    LoanService(CsvBookRepository& bookRepository, CsvLoanRepository& loanRepository);
+    LoanService(
+        CsvBookRepository& bookRepository,
+        CsvLoanRepository& loanRepository,
+        CsvReservationRepository& reservationRepository
+    );
 
     bool borrowBook(
         int bookId,
@@ -24,7 +30,14 @@ public:
 
     bool returnBook(
         int loanId,
-        const std::string& returnDate
+        const std::string& returnDate,
+        const std::string& nextDueDate
+    );
+
+    bool reserveBook(
+        int bookId,
+        const std::string& memberId,
+        const std::string& reservedAt
     );
 
     std::vector<Loan> listActiveLoans() const;

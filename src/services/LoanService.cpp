@@ -2,10 +2,12 @@
 
 LoanService::LoanService(
     CsvBookRepository& bookRepository,
-    CsvLoanRepository& loanRepository
+    CsvLoanRepository& loanRepository,
+    CsvReservationRepository& reservationRepository
 )
     : bookRepository_(bookRepository),
-      loanRepository_(loanRepository) {}
+      loanRepository_(loanRepository),
+      reservationRepository_(reservationRepository) {}
 
 bool LoanService::borrowBook(
     int bookId,
@@ -45,7 +47,8 @@ bool LoanService::borrowBook(
 
 bool LoanService::returnBook(
     int loanId,
-    const std::string& returnDate
+    const std::string& returnDate,
+    const std::string& nextDueDate
 ) {
     auto loanOpt = loanRepository_.findById(loanId);
 
@@ -69,12 +72,71 @@ bool LoanService::returnBook(
 
     loan.setReturnDate(returnDate);
     loan.setStatus(LoanStatus::Returned);
-    book.setAvailable(true);
 
     bool loanSaved = loanRepository_.save(loan);
+
+    if (!loanSaved) {
+        return false;
+    }
+
+    auto reservationOpt = reservationRepository_.findFirstWaitingByBookId(book.id());
+
+    if (reservationOpt.has_value()) {
+        Reservation reservation = reservationOpt.value();
+
+        Loan nextLoan(
+            loanRepository_.nextId(),
+            book.id(),
+            reservation.memberId(),
+            returnDate,
+            nextDueDate,
+            "",
+            LoanStatus::Active
+        );
+
+        reservation.setStatus(ReservationStatus::Fulfilled);
+        book.setAvailable(false);
+
+        bool nextLoanSaved = loanRepository_.save(nextLoan);
+        bool reservationSaved = reservationRepository_.save(reservation);
+        bool bookSaved = bookRepository_.save(book);
+
+        return nextLoanSaved && reservationSaved && bookSaved;
+    }
+
+    book.setAvailable(true);
+
     bool bookSaved = bookRepository_.save(book);
 
-    return loanSaved && bookSaved;
+    return bookSaved;
+}
+
+bool LoanService::reserveBook(
+    int bookId,
+    const std::string& memberId,
+    const std::string& reservedAt
+) {
+    auto bookOpt = bookRepository_.findById(bookId);
+
+    if (!bookOpt.has_value()) {
+        return false;
+    }
+
+    for (const Reservation& reservation : reservationRepository_.listWaitingByBookId(bookId)) {
+        if (reservation.memberId() == memberId) {
+            return false;
+        }
+    }
+
+    Reservation reservation(
+        reservationRepository_.nextId(),
+        bookId,
+        memberId,
+        reservedAt,
+        ReservationStatus::Waiting
+    );
+
+    return reservationRepository_.save(reservation);
 }
 
 std::vector<Loan> LoanService::listActiveLoans() const {

@@ -18,6 +18,8 @@ add_executable(oop_project
     src/repositories/CsvLoanRepository.cpp
     src/services/LoanService.cpp
     src/utils/PasswordHasher.cpp
+    src/models/Reservation.cpp
+    src/repositories/CsvReservationRepository.cpp
 )
 
 target_include_directories(oop_project PRIVATE include)

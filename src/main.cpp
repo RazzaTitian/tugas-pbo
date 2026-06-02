@@ -1,24 +1,24 @@
-#include "repositories/CsvBookRepository.hpp"
 #include "repositories/CsvLoanRepository.hpp"
-#include "services/BookService.hpp"
+#include "repositories/CsvMemberRepository.hpp"
+#include "services/MemberService.hpp"
 
 #include <iostream>
 
 int main() {
-    CsvBookRepository bookRepository("data/books.csv");
+    CsvMemberRepository memberRepository("data/members.csv");
     CsvLoanRepository loanRepository("data/loans.csv");
 
-    BookService bookService(bookRepository, loanRepository);
+    MemberService memberService(memberRepository, loanRepository);
 
-    bool deleteBook3 = bookService.deleteBook(3);
-    bool deleteBook1 = bookService.deleteBook(1);
+    bool deleteM003 = memberService.deleteMember("M003");
+    bool deleteM001 = memberService.deleteMember("M001");
 
-    std::cout << "Delete book 3: " << (deleteBook3 ? "success" : "failed") << '\n';
-    std::cout << "Delete book 1: " << (deleteBook1 ? "success" : "failed") << '\n';
+    std::cout << "Delete M003: " << (deleteM003 ? "success" : "failed") << '\n';
+    std::cout << "Delete M001: " << (deleteM001 ? "success" : "failed") << '\n';
 
-    std::cout << "\nBooks:\n";
-    for (const Book& book : bookService.listBooks()) {
-        std::cout << book << '\n';
+    std::cout << "\nMembers:\n";
+    for (const Member& member : memberService.listMembers()) {
+        std::cout << member << '\n';
     }
 
     return 0;

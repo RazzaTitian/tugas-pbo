@@ -24,6 +24,7 @@ add_executable(oop_project
     src/services/MemberService.cpp
     src/services/AdminService.cpp
     src/cli/AdminCli.cpp
+    src/web/WebServer.cpp
 )
 
 target_include_directories(oop_project PRIVATE include)

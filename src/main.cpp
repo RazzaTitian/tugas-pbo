@@ -1,26 +1,32 @@
 #include "repositories/CsvBookRepository.hpp"
+#include "repositories/CsvLoanRepository.hpp"
+#include "services/LoanService.hpp"
 
 #include <iostream>
+#include <vector>
 
 int main() {
     CsvBookRepository bookRepository("data/books.csv");
+    CsvLoanRepository loanRepository("data/loans.csv");
 
-    std::string keyword;
+    LoanService loanService(bookRepository, loanRepository);
 
-    std::cout << "Search keyword: ";
-    std::getline(std::cin, keyword);
+    std::string memberId;
 
-    std::vector<Book> results = bookRepository.search(keyword);
+    std::cout << "Member ID: ";
+    std::getline(std::cin, memberId);
 
-    std::cout << "\nSearch results:\n\n";
+    std::vector<Loan> history = loanService.listLoanHistoryByMember(memberId);
 
-    if (results.empty()) {
-        std::cout << "No books found.\n";
+    std::cout << "\nLoan history for member " << memberId << ":\n\n";
+
+    if (history.empty()) {
+        std::cout << "No loan history found.\n";
         return 0;
     }
 
-    for (const Book& book : results) {
-        std::cout << book << '\n';
+    for (const Loan& loan : history) {
+        std::cout << loan << '\n';
     }
 
     return 0;

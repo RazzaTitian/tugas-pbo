@@ -9,52 +9,48 @@
 
 class AdminCli {
 private:
-    AdminService& adminService_;
-    BookService& bookService_;
-    MemberService& memberService_;
-    LoanService& loanService_;
+  AdminService &adminService_;
+  BookService &bookService_;
+  MemberService &memberService_;
+  LoanService &loanService_;
 
-    bool login();
+  bool login();
 
-    void showMainMenu();
-    void showBookMenu();
-    void showMemberMenu();
-    void showLoanMenu();
-    void showReportsMenu();
+  void showMainMenu();
+  void showBookMenu();
+  void showMemberMenu();
+  void showLoanMenu();
+  void showReportsMenu();
 
-    void listBooks();
-    void addBook();
-    void editBook();
-    void searchBooks();
-    void deleteBook();
+  void listBooks();
+  void addBook();
+  void editBook();
+  void searchBooks();
+  void deleteBook();
 
-    void listMembers();
-    void addMember();
-    void editMember();
-    void deleteMember();
-    void viewMemberLoans();
+  void listMembers();
+  void addMember();
+  void editMember();
+  void deleteMember();
+  void viewMemberLoans();
 
-    void issueLoan();
-    void returnLoan();
-    void reserveBook();
-    void listActiveLoans();
+  void issueLoan();
+  void returnLoan();
+  void reserveBook();
+  void listActiveLoans();
 
-    void reportBooks();
-    void reportMembers();
-    void reportActiveLoans();
-    
-    int readInt(const std::string& prompt) const;
-    std::string readLine(const std::string& prompt) const;
-    std::string readPassword(const std::string& prompt) const;
-    void waitForEnter() const;
+  void reportBooks();
+  void reportMembers();
+  void reportActiveLoans();
+
+  int readInt(const std::string &prompt) const;
+  std::string readLine(const std::string &prompt) const;
+  std::string readPassword(const std::string &prompt) const;
+  void waitForEnter() const;
 
 public:
-    AdminCli(
-        AdminService& adminService,
-        BookService& bookService,
-        MemberService& memberService,
-        LoanService& loanService
-    );
+  AdminCli(AdminService &adminService, BookService &bookService,
+           MemberService &memberService, LoanService &loanService);
 
-    void run();
+  void run();
 };

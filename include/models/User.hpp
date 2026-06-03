@@ -4,21 +4,22 @@
 
 class User {
 protected:
-    std::string username_;
-    std::string passwordHash_;
+  std::string username_;
+  std::string passwordHash_;
 
 public:
-    User();
-    User(std::string username, std::string passwordHash);
-    virtual ~User() = default;
+  User();
+  User(std::string username, std::string passwordHash);
+  virtual ~User() = default;
 
-    const std::string& username() const;
-    const std::string& passwordHash() const;
+  const std::string &username() const;
+  const std::string &passwordHash() const;
 
-    void setUsername(const std::string& username);
-    void setPasswordHash(const std::string& passwordHash);
+  void setUsername(const std::string &username);
+  void setPasswordHash(const std::string &passwordHash);
 
-    bool login(const std::string& username, const std::string& passwordHash) const;
+  bool login(const std::string &username,
+             const std::string &passwordHash) const;
 
-    virtual std::string role() const = 0;
+  virtual std::string role() const = 0;
 };

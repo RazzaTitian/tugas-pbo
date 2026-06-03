@@ -10,20 +10,18 @@
 
 class MemberService {
 private:
-    CsvMemberRepository& memberRepository_;
-    CsvLoanRepository& loanRepository_;
+  CsvMemberRepository &memberRepository_;
+  CsvLoanRepository &loanRepository_;
 
 public:
-    MemberService(
-        CsvMemberRepository& memberRepository,
-        CsvLoanRepository& loanRepository
-    );
+  MemberService(CsvMemberRepository &memberRepository,
+                CsvLoanRepository &loanRepository);
 
-    bool addMember(const Member& member);
-    bool updateMember(const Member& member);
-    bool deleteMember(const std::string& memberId);
+  bool addMember(const Member &member);
+  bool updateMember(const Member &member);
+  bool deleteMember(const std::string &memberId);
 
-    std::optional<Member> findMemberById(const std::string& memberId) const;
-    std::vector<Member> listMembers() const;
-    std::vector<Loan> listMemberLoans(const std::string& memberId) const;
+  std::optional<Member> findMemberById(const std::string &memberId) const;
+  std::vector<Member> listMembers() const;
+  std::vector<Loan> listMemberLoans(const std::string &memberId) const;
 };

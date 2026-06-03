@@ -9,16 +9,16 @@
 
 class CsvAdminRepository : public Repository<Admin, std::string> {
 private:
-    std::string filePath_;
+  std::string filePath_;
 
-    static Admin fromCsvLine(const std::string& line);
-    static std::string toCsvLine(const Admin& admin);
+  static Admin fromCsvLine(const std::string &line);
+  static std::string toCsvLine(const Admin &admin);
 
 public:
-    explicit CsvAdminRepository(std::string filePath);
+  explicit CsvAdminRepository(std::string filePath);
 
-    bool save(const Admin& admin) override;
-    std::optional<Admin> findById(const std::string& username) const override;
-    std::vector<Admin> listAll() const override;
-    bool remove(const std::string& username) override;
+  bool save(const Admin &admin) override;
+  std::optional<Admin> findById(const std::string &username) const override;
+  std::vector<Admin> listAll() const override;
+  bool remove(const std::string &username) override;
 };

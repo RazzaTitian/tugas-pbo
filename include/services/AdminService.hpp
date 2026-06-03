@@ -8,21 +8,15 @@
 
 class AdminService {
 private:
-    CsvAdminRepository& adminRepository_;
+  CsvAdminRepository &adminRepository_;
 
 public:
-    explicit AdminService(
-        CsvAdminRepository& adminRepository
-    );
+  explicit AdminService(CsvAdminRepository &adminRepository);
 
-    bool authenticate(
-        const std::string& username,
-        const std::string& password
-    ) const;
+  bool authenticate(const std::string &username,
+                    const std::string &password) const;
 
-    bool createAdmin(const Admin& admin);
+  bool createAdmin(const Admin &admin);
 
-    std::optional<Admin> findAdmin(
-        const std::string& username
-    ) const;
+  std::optional<Admin> findAdmin(const std::string &username) const;
 };

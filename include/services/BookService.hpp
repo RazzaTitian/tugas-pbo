@@ -10,20 +10,18 @@
 
 class BookService {
 private:
-    CsvBookRepository& bookRepository_;
-    CsvLoanRepository& loanRepository_;
+  CsvBookRepository &bookRepository_;
+  CsvLoanRepository &loanRepository_;
 
 public:
-    BookService(
-        CsvBookRepository& bookRepository,
-        CsvLoanRepository& loanRepository
-    );
+  BookService(CsvBookRepository &bookRepository,
+              CsvLoanRepository &loanRepository);
 
-    bool addBook(const Book& book);
-    bool updateBook(const Book& book);
-    bool deleteBook(int bookId);
+  bool addBook(const Book &book);
+  bool updateBook(const Book &book);
+  bool deleteBook(int bookId);
 
-    std::optional<Book> findBookById(int bookId) const;
-    std::vector<Book> listBooks() const;
-    std::vector<Book> searchBooks(const std::string& keyword) const;
+  std::optional<Book> findBookById(int bookId) const;
+  std::vector<Book> listBooks() const;
+  std::vector<Book> searchBooks(const std::string &keyword) const;
 };

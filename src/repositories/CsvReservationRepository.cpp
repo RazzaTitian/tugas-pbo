@@ -8,174 +8,173 @@
 CsvReservationRepository::CsvReservationRepository(std::string filePath)
     : filePath_(std::move(filePath)) {}
 
-Reservation CsvReservationRepository::fromCsvLine(const std::string& line) {
-    std::stringstream ss(line);
+Reservation CsvReservationRepository::fromCsvLine(const std::string &line) {
+  std::stringstream ss(line);
 
-    std::string reservationIdStr;
-    std::string bookIdStr;
-    std::string memberId;
-    std::string reservedAt;
-    std::string status;
+  std::string reservationIdStr;
+  std::string bookIdStr;
+  std::string memberId;
+  std::string reservedAt;
+  std::string status;
 
-    std::getline(ss, reservationIdStr, ',');
-    std::getline(ss, bookIdStr, ',');
-    std::getline(ss, memberId, ',');
-    std::getline(ss, reservedAt, ',');
-    std::getline(ss, status, ',');
+  std::getline(ss, reservationIdStr, ',');
+  std::getline(ss, bookIdStr, ',');
+  std::getline(ss, memberId, ',');
+  std::getline(ss, reservedAt, ',');
+  std::getline(ss, status, ',');
 
-    return Reservation(
-        std::stoi(reservationIdStr),
-        std::stoi(bookIdStr),
-        memberId,
-        reservedAt,
-        Reservation::statusFromString(status)
-    );
+  return Reservation(std::stoi(reservationIdStr), std::stoi(bookIdStr),
+                     memberId, reservedAt,
+                     Reservation::statusFromString(status));
 }
 
-std::string CsvReservationRepository::toCsvLine(const Reservation& reservation) {
-    std::stringstream ss;
+std::string
+CsvReservationRepository::toCsvLine(const Reservation &reservation) {
+  std::stringstream ss;
 
-    ss << reservation.reservationId() << ","
-       << reservation.bookId() << ","
-       << reservation.memberId() << ","
-       << reservation.reservedAt() << ","
-       << reservation.statusText();
+  ss << reservation.reservationId() << "," << reservation.bookId() << ","
+     << reservation.memberId() << "," << reservation.reservedAt() << ","
+     << reservation.statusText();
 
-    return ss.str();
+  return ss.str();
 }
 
-bool CsvReservationRepository::save(const Reservation& reservation) {
-    std::vector<Reservation> reservations = listAll();
-    bool updated = false;
+bool CsvReservationRepository::save(const Reservation &reservation) {
+  std::vector<Reservation> reservations = listAll();
+  bool updated = false;
 
-    for (Reservation& existingReservation : reservations) {
-        if (existingReservation.reservationId() == reservation.reservationId()) {
-            existingReservation = reservation;
-            updated = true;
-            break;
-        }
+  for (Reservation &existingReservation : reservations) {
+    if (existingReservation.reservationId() == reservation.reservationId()) {
+      existingReservation = reservation;
+      updated = true;
+      break;
     }
+  }
 
-    if (!updated) {
-        reservations.push_back(reservation);
-    }
+  if (!updated) {
+    reservations.push_back(reservation);
+  }
 
-    std::ofstream file(filePath_, std::ios::trunc);
-    if (!file.is_open()) {
-        return false;
-    }
+  std::ofstream file(filePath_, std::ios::trunc);
+  if (!file.is_open()) {
+    return false;
+  }
 
-    for (const Reservation& currentReservation : reservations) {
-        file << toCsvLine(currentReservation) << '\n';
-    }
+  for (const Reservation &currentReservation : reservations) {
+    file << toCsvLine(currentReservation) << '\n';
+  }
 
-    return true;
+  return true;
 }
 
-std::optional<Reservation> CsvReservationRepository::findById(const int& id) const {
-    for (const Reservation& reservation : listAll()) {
-        if (reservation.reservationId() == id) {
-            return reservation;
-        }
+std::optional<Reservation>
+CsvReservationRepository::findById(const int &id) const {
+  for (const Reservation &reservation : listAll()) {
+    if (reservation.reservationId() == id) {
+      return reservation;
     }
+  }
 
-    return std::nullopt;
+  return std::nullopt;
 }
 
 std::vector<Reservation> CsvReservationRepository::listAll() const {
-    std::vector<Reservation> reservations;
-    std::ifstream file(filePath_);
+  std::vector<Reservation> reservations;
+  std::ifstream file(filePath_);
 
-    if (!file.is_open()) {
-        return reservations;
-    }
-
-    std::string line;
-
-    while (std::getline(file, line)) {
-        if (line.empty()) {
-            continue;
-        }
-
-        reservations.push_back(fromCsvLine(line));
-    }
-
+  if (!file.is_open()) {
     return reservations;
+  }
+
+  std::string line;
+
+  while (std::getline(file, line)) {
+    if (line.empty()) {
+      continue;
+    }
+
+    reservations.push_back(fromCsvLine(line));
+  }
+
+  return reservations;
 }
 
-bool CsvReservationRepository::remove(const int& id) {
-    std::vector<Reservation> reservations = listAll();
-    std::vector<Reservation> remainingReservations;
+bool CsvReservationRepository::remove(const int &id) {
+  std::vector<Reservation> reservations = listAll();
+  std::vector<Reservation> remainingReservations;
 
-    bool removed = false;
+  bool removed = false;
 
-    for (const Reservation& reservation : reservations) {
-        if (reservation.reservationId() == id) {
-            removed = true;
-            continue;
-        }
-
-        remainingReservations.push_back(reservation);
+  for (const Reservation &reservation : reservations) {
+    if (reservation.reservationId() == id) {
+      removed = true;
+      continue;
     }
 
-    if (!removed) {
-        return false;
-    }
+    remainingReservations.push_back(reservation);
+  }
 
-    std::ofstream file(filePath_, std::ios::trunc);
-    if (!file.is_open()) {
-        return false;
-    }
+  if (!removed) {
+    return false;
+  }
 
-    for (const Reservation& reservation : remainingReservations) {
-        file << toCsvLine(reservation) << '\n';
-    }
+  std::ofstream file(filePath_, std::ios::trunc);
+  if (!file.is_open()) {
+    return false;
+  }
 
-    return true;
+  for (const Reservation &reservation : remainingReservations) {
+    file << toCsvLine(reservation) << '\n';
+  }
+
+  return true;
 }
 
-std::vector<Reservation> CsvReservationRepository::listWaitingByBookId(int bookId) const {
-    std::vector<Reservation> waitingReservations;
+std::vector<Reservation>
+CsvReservationRepository::listWaitingByBookId(int bookId) const {
+  std::vector<Reservation> waitingReservations;
 
-    for (const Reservation& reservation : listAll()) {
-        if (reservation.bookId() == bookId && reservation.isWaiting()) {
-            waitingReservations.push_back(reservation);
-        }
+  for (const Reservation &reservation : listAll()) {
+    if (reservation.bookId() == bookId && reservation.isWaiting()) {
+      waitingReservations.push_back(reservation);
     }
+  }
 
-    return waitingReservations;
+  return waitingReservations;
 }
 
-std::vector<Reservation> CsvReservationRepository::listByMemberId(const std::string& memberId) const {
-    std::vector<Reservation> memberReservations;
+std::vector<Reservation>
+CsvReservationRepository::listByMemberId(const std::string &memberId) const {
+  std::vector<Reservation> memberReservations;
 
-    for (const Reservation& reservation : listAll()) {
-        if (reservation.memberId() == memberId) {
-            memberReservations.push_back(reservation);
-        }
+  for (const Reservation &reservation : listAll()) {
+    if (reservation.memberId() == memberId) {
+      memberReservations.push_back(reservation);
     }
+  }
 
-    return memberReservations;
+  return memberReservations;
 }
 
-std::optional<Reservation> CsvReservationRepository::findFirstWaitingByBookId(int bookId) const {
-    std::vector<Reservation> waitingReservations = listWaitingByBookId(bookId);
+std::optional<Reservation>
+CsvReservationRepository::findFirstWaitingByBookId(int bookId) const {
+  std::vector<Reservation> waitingReservations = listWaitingByBookId(bookId);
 
-    if (waitingReservations.empty()) {
-        return std::nullopt;
-    }
+  if (waitingReservations.empty()) {
+    return std::nullopt;
+  }
 
-    return waitingReservations.front();
+  return waitingReservations.front();
 }
 
 int CsvReservationRepository::nextId() const {
-    int highestId = 0;
+  int highestId = 0;
 
-    for (const Reservation& reservation : listAll()) {
-        if (reservation.reservationId() > highestId) {
-            highestId = reservation.reservationId();
-        }
+  for (const Reservation &reservation : listAll()) {
+    if (reservation.reservationId() > highestId) {
+      highestId = reservation.reservationId();
     }
+  }
 
-    return highestId + 1;
+  return highestId + 1;
 }

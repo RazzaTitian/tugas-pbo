@@ -19,72 +19,53 @@
 #include <iostream>
 #include <string>
 
-int main(int argc, char* argv[]) {
-    CsvAdminRepository adminRepository("data/admins.csv");
-    CsvBookRepository bookRepository("data/books.csv");
-    CsvMemberRepository memberRepository("data/members.csv");
-    CsvLoanRepository loanRepository("data/loans.csv");
-    CsvReservationRepository reservationRepository("data/reservations.csv");
+int main(int argc, char *argv[]) {
+  CsvAdminRepository adminRepository("data/admins.csv");
+  CsvBookRepository bookRepository("data/books.csv");
+  CsvMemberRepository memberRepository("data/members.csv");
+  CsvLoanRepository loanRepository("data/loans.csv");
+  CsvReservationRepository reservationRepository("data/reservations.csv");
 
-    auto adminOpt = adminRepository.findById("admin");
+  auto adminOpt = adminRepository.findById("admin");
 
-    if (!adminOpt.has_value()) {
-        adminRepository.save(Admin(
-            "admin",
-            PasswordHasher::hash("admin123"),
-            "Main Admin"
-        ));
-    } else if (adminOpt.value().passwordHash().find('$') == std::string::npos) {
-        adminRepository.save(Admin(
-            "admin",
-            PasswordHasher::hash("admin123"),
-            "Main Admin"
-        ));
-    }
+  if (!adminOpt.has_value()) {
+    adminRepository.save(
+        Admin("admin", PasswordHasher::hash("admin123"), "Main Admin"));
+  } else if (adminOpt.value().passwordHash().find('$') == std::string::npos) {
+    adminRepository.save(
+        Admin("admin", PasswordHasher::hash("admin123"), "Main Admin"));
+  }
 
-    AdminService adminService(adminRepository);
-    BookService bookService(bookRepository, loanRepository);
-    MemberService memberService(memberRepository, loanRepository);
-    LoanService loanService(
-        bookRepository,
-        loanRepository,
-        memberRepository,
-        reservationRepository
-    );
+  AdminService adminService(adminRepository);
+  BookService bookService(bookRepository, loanRepository);
+  MemberService memberService(memberRepository, loanRepository);
+  LoanService loanService(bookRepository, loanRepository, memberRepository,
+                          reservationRepository);
 
-    std::string mode = "admin";
+  std::string mode = "admin";
 
-    if (argc >= 2) {
-        mode = argv[1];
-    }
+  if (argc >= 2) {
+    mode = argv[1];
+  }
 
-    if (mode == "admin") {
-        AdminCli adminCli(
-            adminService,
-            bookService,
-            memberService,
-            loanService
-        );
+  if (mode == "admin") {
+    AdminCli adminCli(adminService, bookService, memberService, loanService);
 
-        adminCli.run();
-        return 0;
-    }
+    adminCli.run();
+    return 0;
+  }
 
-    if (mode == "web") {
-        WebServer webServer(
-            bookService,
-            memberService,
-            loanService
-        );
+  if (mode == "web") {
+    WebServer webServer(bookService, memberService, loanService);
 
-        webServer.run(8080);
-        return 0;
-    }
+    webServer.run(8080);
+    return 0;
+  }
 
-    std::cout << "Unknown mode: " << mode << '\n';
-    std::cout << "Usage:\n";
-    std::cout << "  oop_project admin\n";
-    std::cout << "  oop_project web\n";
+  std::cout << "Unknown mode: " << mode << '\n';
+  std::cout << "Usage:\n";
+  std::cout << "  oop_project admin\n";
+  std::cout << "  oop_project web\n";
 
-    return 1;
+  return 1;
 }

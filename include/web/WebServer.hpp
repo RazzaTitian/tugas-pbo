@@ -6,16 +6,13 @@
 
 class WebServer {
 private:
-    BookService& bookService_;
-    MemberService& memberService_;
-    LoanService& loanService_;
+  BookService &bookService_;
+  MemberService &memberService_;
+  LoanService &loanService_;
 
 public:
-    WebServer(
-        BookService& bookService,
-        MemberService& memberService,
-        LoanService& loanService
-    );
+  WebServer(BookService &bookService, MemberService &memberService,
+            LoanService &loanService);
 
-    void run(int port = 8080);
+  void run(int port = 8080);
 };

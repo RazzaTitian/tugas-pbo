@@ -7,18 +7,19 @@
 
 class Admin : public User {
 private:
-    std::string displayName_;
+  std::string displayName_;
 
 public:
-    Admin();
-    Admin(std::string username, std::string passwordHash, std::string displayName);
+  Admin();
+  Admin(std::string username, std::string passwordHash,
+        std::string displayName);
 
-    const std::string& displayName() const;
-    void setDisplayName(const std::string& displayName);
+  const std::string &displayName() const;
+  void setDisplayName(const std::string &displayName);
 
-    std::string role() const override;
+  std::string role() const override;
 
-    bool operator==(const Admin& other) const;
+  bool operator==(const Admin &other) const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Admin& admin);
+  friend std::ostream &operator<<(std::ostream &os, const Admin &admin);
 };

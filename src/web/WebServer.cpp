@@ -324,27 +324,50 @@ void WebServer::run(int port) {
         std::vector<Book> books = bookService_.searchBooks(keyword);
 
         if (books.empty()) {
-            html += "<p>No matching books found.</p>";
-        } else {
-            for (const Book& book : books) {
-                html += "<div style='margin-bottom:12px;'>";
+        html += "<p>No matching books found.</p>";
+    } else {
+        html += "<table border='1' cellpadding='8' cellspacing='0'>";
+        html += "<thead>";
+        html += "<tr>";
+        html += "<th>ID</th>";
+        html += "<th>Title</th>";
+        html += "<th>Author</th>";
+        html += "<th>Status</th>";
+        html += "</tr>";
+        html += "</thead>";
+        html += "<tbody>";
 
-                html += "<strong>";
-                html += book.title();
-                html += "</strong>";
+        for (const Book& book : books) {
+            html += "<tr>";
 
-                html += " - ";
-                html += book.author();
+            html += "<td>";
+            html += std::to_string(book.id());
+            html += "</td>";
 
-                if (book.isAvailable()) {
-                    html += " <span style='color:green;'>(Available)</span>";
-                } else {
-                    html += " <span style='color:red;'>(On Loan)</span>";
-                }
+            html += "<td>";
+            html += book.title();
+            html += "</td>";
 
-                html += "</div>";
+            html += "<td>";
+            html += book.author();
+            html += "</td>";
+
+            html += "<td>";
+
+            if (book.isAvailable()) {
+                html += "<span style='color:green;'>Available</span>";
+            } else {
+                html += "<span style='color:red;'>On Loan</span>";
             }
+
+            html += "</td>";
+
+            html += "</tr>";
         }
+
+        html += "</tbody>";
+        html += "</table>";
+    }
 
         html += "</body>";
         html += "</html>";
@@ -353,103 +376,155 @@ void WebServer::run(int port) {
     });
 
     server.Get("/me", [this](const httplib::Request& request,
-                             httplib::Response& response) {
-        std::string memberId;
+                         httplib::Response& response) {
+    std::string memberId;
 
-        if (request.has_param("id")) {
-            memberId = request.get_param_value("id");
-        }
+    if (request.has_param("id")) {
+        memberId = request.get_param_value("id");
+    }
 
-        std::string html;
+    std::string html;
 
-        html += "<!DOCTYPE html>";
-        html += "<html>";
-        html += "<head>";
-        html += "<meta charset='UTF-8'>";
-        html += "<title>My Loans</title>";
-        html += "</head>";
-        html += "<body>";
+    html += "<!DOCTYPE html>";
+    html += "<html>";
+    html += "<head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<title>My Loans</title>";
+    html += "<style>";
+    html += "body { font-family: Arial, sans-serif; max-width: 1000px; margin: 40px auto; padding: 0 20px; }";
+    html += "table { border-collapse: collapse; width: 100%; margin-top: 16px; }";
+    html += "th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }";
+    html += "th { background: #f4f4f4; }";
+    html += ".active { color: green; font-weight: bold; }";
+    html += ".returned { color: #555; font-weight: bold; }";
+    html += "button { padding: 6px 10px; cursor: pointer; }";
+    html += "a { text-decoration: none; }";
+    html += "</style>";
+    html += "</head>";
+    html += "<body>";
 
-        html += "<h1>My Loans</h1>";
-        html += "<a href='/'>Back to Home</a><br><br>";
+    html += "<h1>My Loans</h1>";
+    html += "<a href='/'>Back to Home</a><br><br>";
 
-        if (memberId.empty()) {
-            html += "<p>No member ID provided.</p>";
-            html += "</body>";
-            html += "</html>";
-
-            response.set_content(html, "text/html");
-            return;
-        }
-
-        auto memberOpt = memberService_.findMemberById(memberId);
-
-        if (!memberOpt.has_value()) {
-            html += "<p>Member not found.</p>";
-            html += "</body>";
-            html += "</html>";
-
-            response.set_content(html, "text/html");
-            return;
-        }
-
-        Member member = memberOpt.value();
-
-        html += "<p>Hello, <strong>";
-        html += member.name();
-        html += "</strong></p>";
-
-        std::vector<Loan> loans = memberService_.listMemberLoans(memberId);
-
-        if (loans.empty()) {
-            html += "<p>No loan history found.</p>";
-        } else {
-            html += "<h2>Loan History</h2>";
-
-            for (const Loan& loan : loans) {
-                html += "<div style='margin-bottom:12px;'>";
-
-                html += "Loan ID: <strong>";
-                html += std::to_string(loan.loanId());
-                html += "</strong><br>";
-
-                html += "Book ID: ";
-                html += std::to_string(loan.bookId());
-                html += "<br>";
-
-                html += "Borrow date: ";
-                html += loan.borrowDate();
-                html += "<br>";
-
-                html += "Due date: ";
-                html += loan.dueDate();
-                html += "<br>";
-
-                html += "Return date: ";
-                html += loan.returnDate().empty() ? "-" : loan.returnDate();
-                html += "<br>";
-
-                html += "Status: ";
-                html += loan.statusText();
-
-                if (loan.isActive()) {
-                    html += "<form action='/return' method='post' style='margin-top: 4px;'>";
-                    html += "<input type='hidden' name='loanId' value='";
-                    html += std::to_string(loan.loanId());
-                    html += "'>";
-                    html += "<button type='submit'>Return</button>";
-                    html += "</form>";
-                }
-
-                html += "</div>";
-            }
-        }
-
+    if (memberId.empty()) {
+        html += "<p>No member ID provided.</p>";
         html += "</body>";
         html += "</html>";
 
         response.set_content(html, "text/html");
-    });
+        return;
+    }
+
+    auto memberOpt = memberService_.findMemberById(memberId);
+
+    if (!memberOpt.has_value()) {
+        html += "<p>Member not found.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    }
+
+    Member member = memberOpt.value();
+
+    html += "<p>Member ID: <strong>";
+    html += member.memberId();
+    html += "</strong></p>";
+
+    html += "<p>Name: <strong>";
+    html += member.name();
+    html += "</strong></p>";
+
+    html += "<p>Email: ";
+    html += member.email();
+    html += "</p>";
+
+    std::vector<Loan> loans = memberService_.listMemberLoans(memberId);
+
+    if (loans.empty()) {
+        html += "<p>No loan history found.</p>";
+    } else {
+        html += "<h2>Loan History</h2>";
+
+        html += "<table>";
+        html += "<thead>";
+        html += "<tr>";
+        html += "<th>Loan ID</th>";
+        html += "<th>Book ID</th>";
+        html += "<th>Borrow Date</th>";
+        html += "<th>Due Date</th>";
+        html += "<th>Return Date</th>";
+        html += "<th>Status</th>";
+        html += "<th>Action</th>";
+        html += "</tr>";
+        html += "</thead>";
+        html += "<tbody>";
+
+        for (const Loan& loan : loans) {
+            html += "<tr>";
+
+            html += "<td>";
+            html += std::to_string(loan.loanId());
+            html += "</td>";
+
+            html += "<td>";
+            html += std::to_string(loan.bookId());
+            html += "</td>";
+
+            html += "<td>";
+            html += loan.borrowDate();
+            html += "</td>";
+
+            html += "<td>";
+            html += loan.dueDate();
+            html += "</td>";
+
+            html += "<td>";
+            html += loan.returnDate().empty() ? "-" : loan.returnDate();
+            html += "</td>";
+
+            html += "<td>";
+
+            if (loan.isActive()) {
+                html += "<span class='active'>";
+                html += loan.statusText();
+                html += "</span>";
+            } else {
+                html += "<span class='returned'>";
+                html += loan.statusText();
+                html += "</span>";
+            }
+
+            html += "</td>";
+
+            html += "<td>";
+
+            if (loan.isActive()) {
+                html += "<form action='/return' method='post'>";
+                html += "<input type='hidden' name='loanId' value='";
+                html += std::to_string(loan.loanId());
+                html += "'>";
+                html += "<button type='submit'>Return</button>";
+                html += "</form>";
+            } else {
+                html += "-";
+            }
+
+            html += "</td>";
+
+            html += "</tr>";
+        }
+
+        html += "</tbody>";
+        html += "</table>";
+    }
+
+    html += "</body>";
+    html += "</html>";
+
+    response.set_content(html, "text/html");
+});
 
     server.Post("/borrow", [this](const httplib::Request& request,
                                   httplib::Response& response) {

@@ -239,6 +239,15 @@ void WebServer::run(int port) {
             html += "Status: ";
             html += loan.statusText();
 
+            if (loan.isActive()) {
+                html += "<form action='/return' method='post' style='margin-top: 4px;'>";
+                html += "<input type='hidden' name='loanId' value='";
+                html += std::to_string(loan.loanId());
+                html += "'>";
+                html += "<button type='submit'>Return</button>";
+                html += "</form>";
+            }
+
             html += "</div>";
         }
     }
@@ -319,6 +328,76 @@ void WebServer::run(int port) {
     } else {
         html += "<p style='color: red;'>Failed to borrow book.</p>";
         html += "<p>The book may be unavailable, or the member ID may be invalid.</p>";
+    }
+
+    html += "</body>";
+    html += "</html>";
+
+    response.set_content(html, "text/html");
+});
+
+    server.Post("/return", [this](const httplib::Request& request,
+                              httplib::Response& response) {
+    std::string loanIdValue;
+
+    if (request.has_param("loanId")) {
+        loanIdValue = request.get_param_value("loanId");
+    }
+
+    std::string html;
+
+    html += "<!DOCTYPE html>";
+    html += "<html>";
+    html += "<head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<title>Return Book</title>";
+    html += "</head>";
+    html += "<body>";
+
+    html += "<h1>Return Book</h1>";
+    html += "<a href='/'>Back to Home</a><br><br>";
+
+    if (loanIdValue.empty()) {
+        html += "<p>Missing loan ID.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    }
+
+    int loanId = 0;
+
+    try {
+        loanId = std::stoi(loanIdValue);
+    } catch (const std::invalid_argument&) {
+        html += "<p>Invalid loan ID.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    } catch (const std::out_of_range&) {
+        html += "<p>Invalid loan ID.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    }
+
+    bool returnOk = loanService_.returnBook(
+        loanId,
+        "2026-06-03",
+        "2026-06-17"
+    );
+
+    if (returnOk) {
+        html += "<p style='color: green;'>Book returned successfully.</p>";
+        html += "<p>If there was a reservation queue, the book was assigned automatically.</p>";
+    } else {
+        html += "<p style='color: red;'>Failed to return book.</p>";
+        html += "<p>The loan ID may be invalid or already returned.</p>";
     }
 
     html += "</body>";

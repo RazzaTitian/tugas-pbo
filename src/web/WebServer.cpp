@@ -468,6 +468,48 @@ void WebServer::run(int port) {
 
     std::vector<Loan> loans = memberService_.listMemberLoans(memberId);
 
+    int activeLoanCount = 0;
+    int returnedLoanCount = 0;
+
+    for (const Loan &loan : loans) {
+      if (loan.isActive()) {
+        ++activeLoanCount;
+      } else {
+        ++returnedLoanCount;
+      }
+    }
+
+    html += "<h2>Member Statistics</h2>";
+
+    html += "<div style='display: flex; gap: 16px; flex-wrap: wrap; margin: "
+            "16px 0;'>";
+
+    html += "<div style='border: 1px solid #ddd; border-radius: 8px; padding: "
+            "16px;'>";
+    html += "<h3>Total Loans</h3>";
+    html += "<p style='font-size: 24px; font-weight: bold;'>";
+    html += std::to_string(loans.size());
+    html += "</p>";
+    html += "</div>";
+
+    html += "<div style='border: 1px solid #ddd; border-radius: 8px; padding: "
+            "16px;'>";
+    html += "<h3>Active Loans</h3>";
+    html += "<p style='font-size: 24px; font-weight: bold;'>";
+    html += std::to_string(activeLoanCount);
+    html += "</p>";
+    html += "</div>";
+
+    html += "<div style='border: 1px solid #ddd; border-radius: 8px; padding: "
+            "16px;'>";
+    html += "<h3>Returned Loans</h3>";
+    html += "<p style='font-size: 24px; font-weight: bold;'>";
+    html += std::to_string(returnedLoanCount);
+    html += "</p>";
+    html += "</div>";
+
+    html += "</div>";
+
     if (loans.empty()) {
       html += "<p>No loan history found.</p>";
     } else {

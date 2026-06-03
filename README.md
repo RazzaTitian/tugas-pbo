@@ -368,6 +368,19 @@ Completed:
   - `GET /export/members`
   - `GET /export/loans`
 
+## Known Limitations
+
+This project is designed as an Object-Oriented Programming mini project and focuses on demonstrating OOP principles, layered architecture, CSV persistence, CLI interaction, and basic web integration. Some limitations remain:
+
+- The system uses CSV files as its storage backend, so it does not provide database-level indexing, transaction handling, or concurrent write protection.
+- The web interface does not implement user sessions or full login-based authentication. Member pages are accessed using member IDs.
+- Dates are entered manually and are not automatically generated from the system clock.
+- Password hashing uses a custom salted SHA-256 implementation for educational purposes. In production systems, dedicated password hashing algorithms such as bcrypt, scrypt, or Argon2 should be used instead.
+- The web interface is intentionally simple and uses server-generated HTML rather than a frontend framework.
+- Input validation is implemented for core workflows, but not all edge cases are handled as strictly as they would be in a production system.
+- CSV fields are expected not to contain commas, because the current parser uses simple comma-separated parsing.
+- The server is intended for local demonstration through `localhost:8080`, not public deployment.
+
 ---
 
 ## License

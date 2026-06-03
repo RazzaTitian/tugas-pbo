@@ -153,6 +153,52 @@ void WebServer::run(int port) {
 
         html += "</div>";
 
+        std::vector<Book> allBooksForStats = bookService_.listBooks();
+        std::vector<Member> membersForStats = memberService_.listMembers();
+        std::vector<Loan> activeLoansForStats = loanService_.listActiveLoans();
+
+        int availableBookCount = 0;
+
+        for (const Book& book : allBooksForStats) {
+            if (book.isAvailable()) {
+                ++availableBookCount;
+            }
+        }
+
+        html += "<h2>Library Statistics</h2>";
+
+        html += "<div class='nav-box'>";
+
+        html += "<div class='card'>";
+        html += "<h3>Total Books</h3>";
+        html += "<p style='font-size: 24px; font-weight: bold;'>";
+        html += std::to_string(allBooksForStats.size());
+        html += "</p>";
+        html += "</div>";
+
+        html += "<div class='card'>";
+        html += "<h3>Available Books</h3>";
+        html += "<p style='font-size: 24px; font-weight: bold;'>";
+        html += std::to_string(availableBookCount);
+        html += "</p>";
+        html += "</div>";
+            
+        html += "<div class='card'>";
+        html += "<h3>Members</h3>";
+        html += "<p style='font-size: 24px; font-weight: bold;'>";
+        html += std::to_string(membersForStats.size());
+        html += "</p>";
+        html += "</div>";
+            
+        html += "<div class='card'>";
+        html += "<h3>Active Loans</h3>";
+        html += "<p style='font-size: 24px; font-weight: bold;'>";
+        html += std::to_string(activeLoansForStats.size());
+        html += "</p>";
+        html += "</div>";
+            
+        html += "</div>";
+            
         html += "<h2>Available Books</h2>";
 
         if (availableBooks.empty()) {

@@ -26,7 +26,15 @@ int main(int argc, char* argv[]) {
     CsvLoanRepository loanRepository("data/loans.csv");
     CsvReservationRepository reservationRepository("data/reservations.csv");
 
-    if (!adminRepository.findById("admin").has_value()) {
+    auto adminOpt = adminRepository.findById("admin");
+
+    if (!adminOpt.has_value()) {
+        adminRepository.save(Admin(
+            "admin",
+            PasswordHasher::hash("admin123"),
+            "Main Admin"
+        ));
+    } else if (adminOpt.value().passwordHash().find('$') == std::string::npos) {
         adminRepository.save(Admin(
             "admin",
             PasswordHasher::hash("admin123"),

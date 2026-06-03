@@ -18,9 +18,9 @@ bool AdminService::authenticate(
 
     Admin admin = adminOpt.value();
 
-    return admin.login(
-        username,
-        PasswordHasher::hash(password)
+    return PasswordHasher::verify(
+        password,
+        admin.passwordHash()
     );
 }
 

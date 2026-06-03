@@ -45,6 +45,7 @@ private:
     
     int readInt(const std::string& prompt) const;
     std::string readLine(const std::string& prompt) const;
+    std::string readPassword(const std::string& prompt) const;
     void waitForEnter() const;
 
 public:

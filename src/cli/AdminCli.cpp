@@ -1,10 +1,12 @@
-#include "cli/AdminCli.hpp"
+#ifdef _WIN32
+#include <conio.h>
+#endif
 
+#include "cli/AdminCli.hpp"
 #include "models/Book.hpp"
 #include "models/Member.hpp"
 #include "models/Loan.hpp"
 #include "utils/PasswordHasher.hpp"
-
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -39,7 +41,7 @@ bool AdminCli::login() {
 
     for (int attempt = 1; attempt <= maxAttempts; ++attempt) {
         std::string username = readLine("Username: ");
-        std::string password = readLine("Password: ");
+        std::string password = readPassword("Password: ");
 
         if (adminService_.authenticate(username, password)) {
             std::cout << "\n[OK] Login successful. Welcome, " << username << ".\n\n";
@@ -308,7 +310,7 @@ void AdminCli::addMember() {
 
     std::string memberId = readLine("Member ID: ");
     std::string username = readLine("Username: ");
-    std::string password = readLine("Password: ");
+    std::string password = readPassword("Password: ");
     std::string name = readLine("Name: ");
     std::string email = readLine("Email: ");
 
@@ -654,6 +656,44 @@ std::string AdminCli::readLine(const std::string& prompt) const {
     std::getline(std::cin, input);
 
     return input;
+}
+
+std::string AdminCli::readPassword(const std::string& prompt) const {
+    std::cout << prompt;
+
+    std::string password;
+
+#ifdef _WIN32
+    while (true) {
+        int character = _getch();
+
+        if (character == '\r') {
+            std::cout << '\n';
+            break;
+        }
+
+        if (character == '\b') {
+            if (!password.empty()) {
+                password.pop_back();
+                std::cout << "\b \b";
+            }
+
+            continue;
+        }
+
+        if (character == 0 || character == 224) {
+            _getch();
+            continue;
+        }
+
+        password += static_cast<char>(character);
+        std::cout << '*';
+    }
+#else
+    std::getline(std::cin, password);
+#endif
+
+    return password;
 }
 
 void AdminCli::waitForEnter() const {

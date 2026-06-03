@@ -2,10 +2,13 @@
 
 #include "external/httplib.h"
 #include "models/Book.hpp"
+#include "models/Member.hpp"
+#include "models/Loan.hpp"
 
 #include <iostream>
 #include <string>
 #include <vector>
+
 
 WebServer::WebServer(
     BookService& bookService,
@@ -140,6 +143,98 @@ void WebServer::run(int port) {
 
         response.set_content(html, "text/html");
     });
+
+    server.Get("/me", [this](const httplib::Request& request,
+                         httplib::Response& response) {
+    std::string memberId;
+
+    if (request.has_param("id")) {
+        memberId = request.get_param_value("id");
+    }
+
+    std::string html;
+
+    html += "<!DOCTYPE html>";
+    html += "<html>";
+    html += "<head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<title>My Loans</title>";
+    html += "</head>";
+    html += "<body>";
+
+    html += "<h1>My Loans</h1>";
+    html += "<a href='/'>Back to Home</a><br><br>";
+
+    if (memberId.empty()) {
+        html += "<p>No member ID provided.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    }
+
+    auto memberOpt = memberService_.findMemberById(memberId);
+
+    if (!memberOpt.has_value()) {
+        html += "<p>Member not found.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    }
+
+    Member member = memberOpt.value();
+
+    html += "<p>Hello, <strong>";
+    html += member.name();
+    html += "</strong></p>";
+
+    std::vector<Loan> loans = memberService_.listMemberLoans(memberId);
+
+    if (loans.empty()) {
+        html += "<p>No loan history found.</p>";
+    } else {
+        html += "<h2>Loan History</h2>";
+
+        for (const Loan& loan : loans) {
+            html += "<div style='margin-bottom:12px;'>";
+
+            html += "Loan ID: <strong>";
+            html += std::to_string(loan.loanId());
+            html += "</strong><br>";
+
+            html += "Book ID: ";
+            html += std::to_string(loan.bookId());
+            html += "<br>";
+
+            html += "Borrow date: ";
+            html += loan.borrowDate();
+            html += "<br>";
+
+            html += "Due date: ";
+            html += loan.dueDate();
+            html += "<br>";
+
+            html += "Return date: ";
+            html += loan.returnDate().empty()
+                        ? "-"
+                        : loan.returnDate();
+            html += "<br>";
+
+            html += "Status: ";
+            html += loan.statusText();
+
+            html += "</div>";
+        }
+    }
+
+    html += "</body>";
+    html += "</html>";
+
+    response.set_content(html, "text/html");
+});
 
     std::cout << "Web server running at http://localhost:" << port << '\n';
 

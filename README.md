@@ -6,9 +6,9 @@ Universitas Gadjah Mada
 
 ## Author
 
-- Name: Muhammad Razza Titian Jiwani
-- NIM: 21/475348/TK/52470
-- Course: Object-Oriented Programming (C++)
+* Name: Muhammad Razza Titian Jiwani
+* NIM: 21/475348/TK/52470
+* Course: Object-Oriented Programming (C++)
 
 ---
 
@@ -16,18 +16,18 @@ Universitas Gadjah Mada
 
 OOP Borrowing System is a borrowing management application developed using C++17 and Object-Oriented Programming principles.
 
-The system allows administrators to manage books, members, loans, reservations, and borrowing workflows through a command-line interface while maintaining persistent data storage using CSV files.
+The system allows administrators to manage books, members, loans, reservations, and borrowing workflows through a command-line interface while maintaining persistent data storage using CSV files. The project also includes a web interface powered by `cpp-httplib`, allowing the same backend engine to be accessed through a browser.
 
 The architecture follows a layered design:
 
 ```txt
-CLI Layer
-    ↓
-Service Layer
-    ↓
-Repository Layer
-    ↓
-CSV Persistence Layer
+Admin CLI / Web UI
+          ↓
+      Services
+          ↓
+    Repositories
+          ↓
+      CSV Files
 ```
 
 ---
@@ -36,23 +36,38 @@ CSV Persistence Layer
 
 ### Core Features
 
-- Book management
-- Member management
-- Admin management
-- Loan management
-- Borrow book workflow
-- Return book workflow
-- Persistent CSV storage
+* Book management
+* Member management
+* Admin management
+* Loan management
+* Borrow book workflow
+* Return book workflow
+* Persistent CSV storage
 
 ### Additional Features
 
-- Generic Repository<T, ID>
-- Book search
-- Loan history
-- Password hashing
-- Reservation queue
-- Service layer architecture
-- Admin authentication
+* Generic Repository<T, ID>
+* Book search (case-insensitive)
+* Loan history tracking
+* Password hashing
+* Reservation queue system
+* Service layer architecture
+* Admin authentication
+* Active loan protection
+* Member validation
+* Web interface (in progress)
+
+---
+
+## Technologies Used
+
+* C++17
+* CMake
+* CSV Persistence
+* cpp-httplib
+* PlantUML
+* Git
+* GitHub
 
 ---
 
@@ -102,6 +117,63 @@ class Repository
 
 ---
 
+## Architecture
+
+The project follows a layered architecture to separate responsibilities and improve maintainability.
+
+```txt
+Admin CLI / Web UI
+          ↓
+      Services
+          ↓
+    Repositories
+          ↓
+      CSV Files
+```
+
+### Responsibilities
+
+#### CLI / Web Layer
+
+Handles user interaction.
+
+Examples:
+
+* Admin login
+* Book management
+* Member management
+* Loan workflow
+* Browser-based access
+
+#### Service Layer
+
+Contains business logic and validation rules.
+
+Examples:
+
+* Borrowing books
+* Returning books
+* Reservation handling
+* Active loan protection
+* Member validation
+
+#### Repository Layer
+
+Handles persistence operations.
+
+Examples:
+
+* save()
+* findById()
+* listAll()
+* remove()
+
+#### Storage Layer
+
+Stores application data in CSV files.
+
+---
+
 ## UML Class Diagram
 
 ### Diagram
@@ -110,7 +182,7 @@ class Repository
 
 ### PlantUML Source
 
-- [week1_class_diagram.puml](docs/week1_class_diagram.puml)
+* [week1_class_diagram.puml](docs/week1_class_diagram.puml)
 
 ---
 
@@ -119,27 +191,32 @@ class Repository
 ```txt
 include/
 ├── cli/
+├── external/
 ├── models/
 ├── repositories/
 ├── services/
-└── utils/
+├── utils/
+└── web/
 
 src/
 ├── cli/
 ├── models/
 ├── repositories/
 ├── services/
-└── utils/
+├── utils/
+└── web/
 
 data/
+├── admins.csv
 ├── books.csv
-├── members.csv
 ├── loans.csv
-├── reservations.csv
-└── admins.csv
+├── members.csv
+└── reservations.csv
 
 docs/
-└── week1_class_diagram.puml
+├── week1_class_diagram.puml
+└── week1_class_diagram/
+    └── uml.png
 ```
 
 ---
@@ -148,11 +225,11 @@ docs/
 
 CSV repositories:
 
-- CsvBookRepository
-- CsvMemberRepository
-- CsvAdminRepository
-- CsvLoanRepository
-- CsvReservationRepository
+* CsvBookRepository
+* CsvMemberRepository
+* CsvAdminRepository
+* CsvLoanRepository
+* CsvReservationRepository
 
 Supported operations:
 
@@ -173,32 +250,32 @@ Data persists across multiple program executions.
 
 Implemented classes:
 
-- User (abstract)
-- Admin
-- Member
-- Book
-- Loan
-- Reservation
+* User (abstract)
+* Admin
+* Member
+* Book
+* Loan
+* Reservation
 
 ### Database Layer
 
 Implemented CSV persistence using:
 
-- CsvBookRepository
-- CsvMemberRepository
-- CsvAdminRepository
-- CsvLoanRepository
-- CsvReservationRepository
+* CsvBookRepository
+* CsvMemberRepository
+* CsvAdminRepository
+* CsvLoanRepository
+* CsvReservationRepository
 
 ### Sample Data
 
 The project includes sample data stored in:
 
-- books.csv
-- members.csv
-- loans.csv
-- reservations.csv
-- admins.csv
+* admins.csv
+* books.csv
+* loans.csv
+* members.csv
+* reservations.csv
 
 Data persists across multiple program executions.
 
@@ -208,9 +285,9 @@ Data persists across multiple program executions.
 
 ### Requirements
 
-- C++17
-- CMake 3.16+
-- Visual Studio Build Tools / MSVC
+* C++17
+* CMake 3.16+
+* Visual Studio Build Tools / MSVC
 
 ### Build
 
@@ -219,10 +296,22 @@ cmake -B build
 cmake --build build --config Debug
 ```
 
-### Run
+### Run Admin Console
 
 ```bash
-.\build\Debug\oop_project.exe
+.\build\Debug\oop_project.exe admin
+```
+
+### Run Web Server
+
+```bash
+.\build\Debug\oop_project.exe web
+```
+
+Open:
+
+```txt
+http://localhost:8080
 ```
 
 ---
@@ -233,32 +322,41 @@ cmake --build build --config Debug
 
 Completed:
 
-- UML design
-- Core OOP models
-- Repository layer
-- CSV persistence
-- Borrowing workflow
-- Return workflow
+* UML design
+* Core OOP models
+* Repository layer
+* CSV persistence
+* Borrowing workflow
+* Return workflow
 
 ### Week 2
 
-In Progress:
+Completed:
 
-- Admin CLI
-- CRUD menus
-- Validation
-- Reporting
+* Admin authentication
+* Admin CLI
+* Book management
+* Member management
+* Loan workflow
+* Reports
+* Validation
+* Reservation queue
+* Password hashing
 
 ### Week 3
 
-Planned:
+In Progress:
 
-- Web interface
-- HTTP routes
-- User borrowing portal
+* Web server module
+* Homepage route (`GET /`)
+* Available book listing
+* Search route (planned)
+* Borrow route (planned)
+* Return route (planned)
+* Member portal (planned)
 
 ---
 
 ## License
 
-Educational project developed for DTETI UGM.
+This project was developed for educational purposes as part of the Object-Oriented Programming (C++) course at Universitas Gadjah Mada.

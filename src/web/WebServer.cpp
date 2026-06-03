@@ -151,6 +151,12 @@ void WebServer::run(int port) {
         html += "</form>";
         html += "</div>";
 
+        html += "<div class='card'>";
+        html += "<h3>Developer API</h3>";
+        html += "<p>View available JSON endpoints.</p>";
+        html += "<a href='/api'>Open API Docs</a>";
+        html += "</div>";
+
         html += "</div>";
 
         std::vector<Book> allBooksForStats = bookService_.listBooks();
@@ -182,23 +188,23 @@ void WebServer::run(int port) {
         html += std::to_string(availableBookCount);
         html += "</p>";
         html += "</div>";
-            
+
         html += "<div class='card'>";
         html += "<h3>Members</h3>";
         html += "<p style='font-size: 24px; font-weight: bold;'>";
         html += std::to_string(membersForStats.size());
         html += "</p>";
         html += "</div>";
-            
+
         html += "<div class='card'>";
         html += "<h3>Active Loans</h3>";
         html += "<p style='font-size: 24px; font-weight: bold;'>";
         html += std::to_string(activeLoansForStats.size());
         html += "</p>";
         html += "</div>";
-            
+
         html += "</div>";
-            
+
         html += "<h2>Available Books</h2>";
 
         if (availableBooks.empty()) {
@@ -594,6 +600,51 @@ void WebServer::run(int port) {
 
         response.set_content(html, "text/html");
     });
+
+    server.Get("/api", [](const httplib::Request&, httplib::Response& response) {
+    std::string html;
+
+    html += "<!DOCTYPE html>";
+    html += "<html>";
+    html += "<head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<title>API Documentation</title>";
+    html += "<style>";
+    html += "body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }";
+    html += "code { background: #f4f4f4; padding: 3px 6px; border-radius: 4px; }";
+    html += ".endpoint { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 14px; }";
+    html += "</style>";
+    html += "</head>";
+    html += "<body>";
+
+    html += "<h1>API Documentation</h1>";
+    html += "<a href='/'>Back to Home</a><br><br>";
+
+    html += "<p>This page lists the available JSON API endpoints for the OOP Borrowing System.</p>";
+
+    html += "<div class='endpoint'>";
+    html += "<h3>GET /api/books</h3>";
+    html += "<p>Returns all books.</p>";
+    html += "<code>http://localhost:8080/api/books</code>";
+    html += "</div>";
+
+    html += "<div class='endpoint'>";
+    html += "<h3>GET /api/members</h3>";
+    html += "<p>Returns all registered members.</p>";
+    html += "<code>http://localhost:8080/api/members</code>";
+    html += "</div>";
+
+    html += "<div class='endpoint'>";
+    html += "<h3>GET /api/loans</h3>";
+    html += "<p>Returns all active loans.</p>";
+    html += "<code>http://localhost:8080/api/loans</code>";
+    html += "</div>";
+
+    html += "</body>";
+    html += "</html>";
+
+    response.set_content(html, "text/html");
+});
 
     server.Get("/api/books", [this](const httplib::Request&,
                                     httplib::Response& response) {

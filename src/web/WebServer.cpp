@@ -497,6 +497,100 @@ void WebServer::run(int port) {
     response.set_content(json, "application/json");
 });
 
+    server.Get("/api/members", [this](const httplib::Request&,
+                                  httplib::Response& response) {
+    std::vector<Member> members = memberService_.listMembers();
+
+    std::string json;
+
+    json += "[";
+
+    for (std::size_t index = 0; index < members.size(); ++index) {
+        const Member& member = members[index];
+
+        json += "{";
+
+        json += "\"memberId\":\"";
+        json += escapeJson(member.memberId());
+        json += "\",";
+
+        json += "\"username\":\"";
+        json += escapeJson(member.username());
+        json += "\",";
+
+        json += "\"name\":\"";
+        json += escapeJson(member.name());
+        json += "\",";
+
+        json += "\"email\":\"";
+        json += escapeJson(member.email());
+        json += "\"";
+
+        json += "}";
+
+        if (index + 1 < members.size()) {
+            json += ",";
+        }
+    }
+
+    json += "]";
+
+    response.set_content(json, "application/json");
+});
+
+    server.Get("/api/loans", [this](const httplib::Request&,
+                                httplib::Response& response) {
+    std::vector<Loan> loans = loanService_.listActiveLoans();
+
+    std::string json;
+
+    json += "[";
+
+    for (std::size_t index = 0; index < loans.size(); ++index) {
+        const Loan& loan = loans[index];
+
+        json += "{";
+
+        json += "\"loanId\":";
+        json += std::to_string(loan.loanId());
+        json += ",";
+
+        json += "\"bookId\":";
+        json += std::to_string(loan.bookId());
+        json += ",";
+
+        json += "\"memberId\":\"";
+        json += escapeJson(loan.memberId());
+        json += "\",";
+
+        json += "\"borrowDate\":\"";
+        json += escapeJson(loan.borrowDate());
+        json += "\",";
+
+        json += "\"dueDate\":\"";
+        json += escapeJson(loan.dueDate());
+        json += "\",";
+
+        json += "\"returnDate\":\"";
+        json += escapeJson(loan.returnDate());
+        json += "\",";
+
+        json += "\"status\":\"";
+        json += escapeJson(loan.statusText());
+        json += "\"";
+
+        json += "}";
+
+        if (index + 1 < loans.size()) {
+            json += ",";
+        }
+    }
+
+    json += "]";
+
+    response.set_content(json, "application/json");
+});
+
     std::cout << "Web server running at http://localhost:" << port << '\n';
 
     server.listen("0.0.0.0", port);

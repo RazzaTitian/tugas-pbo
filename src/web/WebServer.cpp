@@ -26,71 +26,99 @@ void WebServer::run(int port) {
         std::string html;
 
         html += "<!DOCTYPE html>";
-        html += "<html>";
         html += "<head>";
         html += "<meta charset='UTF-8'>";
         html += "<title>UGM Library</title>";
+        html += "<style>";
+        html += "body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }";
+        html += "h1 { margin-bottom: 4px; }";
+        html += ".subtitle { color: #555; margin-top: 0; }";
+        html += ".nav-box { display: flex; gap: 16px; flex-wrap: wrap; margin: 24px 0; }";
+        html += ".card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }";
+        html += ".book-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 14px; }";
+        html += ".available { color: green; font-weight: bold; }";
+        html += "input { padding: 6px; margin: 4px 0; }";
+        html += "button { padding: 6px 10px; cursor: pointer; }";
+        html += "form { margin-top: 8px; }";
+        html += "</style>";
         html += "</head>";
         html += "<body>";
 
         html += "<h1>UGM Library</h1>";
+        html += "<p class='subtitle'>Borrowing system powered by C++17, CSV, and cpp-httplib.</p>";
 
+        html += "<div class='nav-box'>";
+
+        html += "<div class='card'>";
+        html += "<h3>Search Books</h3>";
         html += "<form action='/search' method='get'>";
-        html += "<label>Search: </label>";
-        html += "<input type='text' name='q'>";
+        html += "<input type='text' name='q' placeholder='Title or author'>";
+        html += "<br>";
         html += "<button type='submit'>Search</button>";
         html += "</form>";
+        html += "</div>";
+
+        html += "<div class='card'>";
+        html += "<h3>My Loans</h3>";
+        html += "<form action='/me' method='get'>";
+        html += "<input type='text' name='id' placeholder='Member ID'>";
+        html += "<br>";
+        html += "<button type='submit'>View My Loans</button>";
+        html += "</form>";
+        html += "</div>";
+
+        html += "</div>";
 
         html += "<h2>Available Books</h2>";
 
         std::vector<Book> books = bookService_.listBooks();
 
         if (books.empty()) {
-            html += "<p>No books found.</p>";
-        } else {
-            bool hasAvailableBook = false;
+        html += "<p>No books found.</p>";
+    } else {
+        bool hasAvailableBook = false;
 
-            for (const Book& book : books) {
-                if (!book.isAvailable()) {
-                    continue;
-                }
-
-                hasAvailableBook = true;
-
-                html += "<div style='margin-bottom: 16px;'>";
-                
-                html += "<strong>";
-                html += book.title();
-                html += "</strong>";
-
-                html += " - ";
-                html += book.author();
-                html += " ";
-
-                html += "<span style='color: green;'>(Available)</span>";
-
-                html += "<form action='/borrow' method='post' style='margin-top: 4px;'>";
-                html += "<input type='hidden' name='bookId' value='";
-                html += std::to_string(book.id());
-                html += "'>";
-                html += "<label>Member ID: </label>";
-                html += "<input type='text' name='memberId'>";
-                html += "<button type='submit'>Borrow</button>";
-                html += "</form>";
-
-                html += "</div>";
+        for (const Book& book : books) {
+            if (!book.isAvailable()) {
+                continue;
             }
 
-            if (!hasAvailableBook) {
-                html += "<p>No available books at the moment.</p>";
-            }
+            hasAvailableBook = true;
+
+            html += "<div class='book-card'>";
+
+            html += "<h3>";
+            html += book.title();
+            html += "</h3>";
+
+            html += "<p>Author: ";
+            html += book.author();
+            html += "</p>";
+
+            html += "<p class='available'>Available</p>";
+
+            html += "<form action='/borrow' method='post'>";
+            html += "<input type='hidden' name='bookId' value='";
+            html += std::to_string(book.id());
+            html += "'>";
+            html += "<input type='text' name='memberId' placeholder='Member ID'>";
+            html += "<br>";
+            html += "<button type='submit'>Borrow</button>";
+            html += "</form>";
+
+            html += "</div>";
         }
 
-        html += "</body>";
-        html += "</html>";
+        if (!hasAvailableBook) {
+            html += "<p>No available books at the moment.</p>";
+        }
+    }
 
-        response.set_content(html, "text/html");
-    });
+    html += "</body>";
+    html += "</html>";
+
+    response.set_content(html, "text/html");
+});
 
     server.Get("/search", [this](const httplib::Request& request,
                                  httplib::Response& response) {

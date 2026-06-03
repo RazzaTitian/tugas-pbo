@@ -157,6 +157,12 @@ void WebServer::run(int port) {
         html += "<a href='/api'>Open API Docs</a>";
         html += "</div>";
 
+        html += "<div class='card'>";
+        html += "<h3>Loan Export</h3>";
+        html += "<p>Download active loan data as CSV.</p>";
+        html += "<a href='/export/loans'>Download CSV</a>";
+        html += "</div>";
+
         html += "</div>";
 
         std::vector<Book> allBooksForStats = bookService_.listBooks();
@@ -640,6 +646,12 @@ void WebServer::run(int port) {
     html += "<code>http://localhost:8080/api/loans</code>";
     html += "</div>";
 
+    html += "<div class='endpoint'>";
+    html += "<h3>GET /export/loans</h3>";
+    html += "<p>Downloads active loans as a CSV file.</p>";
+    html += "<code>http://localhost:8080/export/loans</code>";
+    html += "</div>";
+
     html += "</body>";
     html += "</html>";
 
@@ -779,6 +791,39 @@ void WebServer::run(int port) {
 
         response.set_content(json, "application/json");
     });
+
+    server.Get("/export/loans", [this](const httplib::Request&,
+                                   httplib::Response& response) {
+    std::vector<Loan> loans = loanService_.listActiveLoans();
+
+    std::string csv;
+
+    csv += "loanId,bookId,memberId,borrowDate,dueDate,returnDate,status\n";
+
+    for (const Loan& loan : loans) {
+        csv += std::to_string(loan.loanId());
+        csv += ",";
+        csv += std::to_string(loan.bookId());
+        csv += ",";
+        csv += loan.memberId();
+        csv += ",";
+        csv += loan.borrowDate();
+        csv += ",";
+        csv += loan.dueDate();
+        csv += ",";
+        csv += loan.returnDate();
+        csv += ",";
+        csv += loan.statusText();
+        csv += "\n";
+    }
+
+    response.set_header(
+        "Content-Disposition",
+        "attachment; filename=\"active_loans_export.csv\""
+    );
+
+    response.set_content(csv, "text/csv");
+});
 
     std::cout << "Web server running at http://localhost:" << port << '\n';
 

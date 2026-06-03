@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 WebServer::WebServer(
     BookService& bookService,
@@ -66,6 +67,71 @@ void WebServer::run(int port) {
 
             if (!hasAvailableBook) {
                 html += "<p>No available books at the moment.</p>";
+            }
+        }
+
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+    });
+
+    server.Get("/search", [this](const httplib::Request& request,
+                                 httplib::Response& response) {
+        std::string keyword;
+
+        if (request.has_param("q")) {
+            keyword = request.get_param_value("q");
+        }
+
+        std::string html;
+
+        html += "<!DOCTYPE html>";
+        html += "<html>";
+        html += "<head>";
+        html += "<meta charset='UTF-8'>";
+        html += "<title>Search Results</title>";
+        html += "</head>";
+        html += "<body>";
+
+        html += "<h1>Search Results</h1>";
+        html += "<a href='/'>Back to Home</a><br><br>";
+
+        if (keyword.empty()) {
+            html += "<p>No search keyword provided.</p>";
+            html += "</body>";
+            html += "</html>";
+
+            response.set_content(html, "text/html");
+            return;
+        }
+
+        html += "<p>Keyword: <strong>";
+        html += keyword;
+        html += "</strong></p>";
+
+        std::vector<Book> books = bookService_.searchBooks(keyword);
+
+        if (books.empty()) {
+            html += "<p>No matching books found.</p>";
+        } else {
+            for (const Book& book : books) {
+                html += "<div style='margin-bottom:12px;'>";
+
+                html += "<strong>";
+                html += book.title();
+                html += "</strong>";
+
+                html += " - ";
+                html += book.author();
+
+                if (book.isAvailable()) {
+                    html += " <span style='color:green;'>(Available)</span>";
+                } else {
+                    html += " <span style='color:red;'>(On Loan)</span>";
+                }
+
+                html += "</div>";
             }
         }
 

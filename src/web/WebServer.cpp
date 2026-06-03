@@ -9,6 +9,29 @@
 #include <string>
 #include <vector>
 
+namespace {
+std::string escapeJson(const std::string& text) {
+    std::string escaped;
+
+    for (char character : text) {
+        if (character == '"') {
+            escaped += "\\\"";
+        } else if (character == '\\') {
+            escaped += "\\\\";
+        } else if (character == '\n') {
+            escaped += "\\n";
+        } else if (character == '\r') {
+            escaped += "\\r";
+        } else if (character == '\t') {
+            escaped += "\\t";
+        } else {
+            escaped += character;
+        }
+    }
+
+    return escaped;
+}
+}
 
 WebServer::WebServer(
     BookService& bookService,
@@ -432,6 +455,46 @@ void WebServer::run(int port) {
     html += "</html>";
 
     response.set_content(html, "text/html");
+});
+
+    server.Get("/api/books", [this](const httplib::Request&,
+                                httplib::Response& response) {
+    std::vector<Book> books = bookService_.listBooks();
+
+    std::string json;
+
+    json += "[";
+
+    for (std::size_t index = 0; index < books.size(); ++index) {
+        const Book& book = books[index];
+
+        json += "{";
+
+        json += "\"id\":";
+        json += std::to_string(book.id());
+        json += ",";
+
+        json += "\"title\":\"";
+        json += escapeJson(book.title());
+        json += "\",";
+
+        json += "\"author\":\"";
+        json += escapeJson(book.author());
+        json += "\",";
+
+        json += "\"available\":";
+        json += book.isAvailable() ? "true" : "false";
+
+        json += "}";
+
+        if (index + 1 < books.size()) {
+            json += ",";
+        }
+    }
+
+    json += "]";
+
+    response.set_content(json, "application/json");
 });
 
     std::cout << "Web server running at http://localhost:" << port << '\n';

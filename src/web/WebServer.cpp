@@ -245,7 +245,11 @@ void WebServer::run(int port) {
         html += "<div class='book-card'>";
 
         html += "<h3>";
+        html += "<a href='/book?id=";
+        html += std::to_string(book.id());
+        html += "'>";
         html += book.title();
+        html += "</a>";
         html += "</h3>";
 
         html += "<p>Author: ";
@@ -368,7 +372,11 @@ void WebServer::run(int port) {
         html += "</td>";
 
         html += "<td>";
+        html += "<a href='/book?id=";
+        html += std::to_string(book.id());
+        html += "'>";
         html += book.title();
+        html += "</a>";
         html += "</td>";
 
         html += "<td>";
@@ -391,6 +399,93 @@ void WebServer::run(int port) {
       html += "</tbody>";
       html += "</table>";
     }
+
+    html += "</body>";
+    html += "</html>";
+
+    response.set_content(html, "text/html");
+  });
+
+  server.Get("/book", [this](const httplib::Request &request,
+                             httplib::Response &response) {
+    std::string bookIdValue;
+
+    if (request.has_param("id")) {
+      bookIdValue = request.get_param_value("id");
+    }
+
+    std::string html;
+
+    html += "<!DOCTYPE html>";
+    html += "<html>";
+    html += "<head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<title>Book Details</title>";
+    html += "</head>";
+    html += "<body>";
+
+    html += "<h1>Book Details</h1>";
+    html += "<a href='/'>Back to Home</a><br><br>";
+
+    if (bookIdValue.empty()) {
+      html += "<p>No book ID provided.</p>";
+
+      html += "</body>";
+      html += "</html>";
+
+      response.set_content(html, "text/html");
+      return;
+    }
+
+    int bookId = 0;
+
+    try {
+      bookId = std::stoi(bookIdValue);
+    } catch (...) {
+      html += "<p>Invalid book ID.</p>";
+
+      html += "</body>";
+      html += "</html>";
+
+      response.set_content(html, "text/html");
+      return;
+    }
+
+    auto bookOpt = bookService_.findBookById(bookId);
+
+    if (!bookOpt.has_value()) {
+      html += "<p>Book not found.</p>";
+
+      html += "</body>";
+      html += "</html>";
+
+      response.set_content(html, "text/html");
+      return;
+    }
+
+    Book book = bookOpt.value();
+
+    html += "<h2>";
+    html += book.title();
+    html += "</h2>";
+
+    html += "<p><strong>ID:</strong> ";
+    html += std::to_string(book.id());
+    html += "</p>";
+
+    html += "<p><strong>Author:</strong> ";
+    html += book.author();
+    html += "</p>";
+
+    html += "<p><strong>Status:</strong> ";
+
+    if (book.isAvailable()) {
+      html += "<span style='color: green;'>Available</span>";
+    } else {
+      html += "<span style='color: red;'>On Loan</span>";
+    }
+
+    html += "</p>";
 
     html += "</body>";
     html += "</html>";

@@ -117,8 +117,19 @@ void WebServer::run(int port) {
         html += "</head>";
         html += "<body>";
 
-        html += "<h1>UGM Library</h1>";
-        html += "<p class='subtitle'>Borrowing system powered by C++17, CSV, and cpp-httplib.</p>";
+        html += "<h1>Library Management System</h1>";
+
+        html += "<p class='subtitle'>";
+        html += "Object-Oriented Programming Mini Project";
+        html += "</p>";
+
+        html += "<p class='subtitle'>";
+        html += "Departemen Teknik Elektro dan Teknologi Informasi (DTETI)";
+        html += "</p>";
+
+        html += "<p class='subtitle'>";
+        html += "Universitas Gadjah Mada";
+        html += "</p>";
 
         html += "<div class='nav-box'>";
 
@@ -195,6 +206,16 @@ void WebServer::run(int port) {
 
             html += "</div>";
         }
+
+        html += "<hr>";
+
+        html += "<div style='margin-top: 16px; color: #666;'>";
+        html += "<strong>Library Management System</strong><br>";
+        html += "Developed by Muhammad Razza Titian Jiwani<br>";
+        html += "Object-Oriented Programming Mini Project<br>";
+        html += "DTETI - Universitas Gadjah Mada<br>";
+        html += "Powered by C++17, CSV, and cpp-httplib";
+        html += "</div>";
 
         html += "</body>";
         html += "</html>";

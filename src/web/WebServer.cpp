@@ -168,6 +168,18 @@ void WebServer::run(int port) {
     html += "<a href='/export/loans'>Download CSV</a>";
     html += "</div>";
 
+    html += "<div class='card'>";
+    html += "<h3>Book Export</h3>";
+    html += "<p>Download all books as CSV.</p>";
+    html += "<a href='/export/books'>Download CSV</a>";
+    html += "</div>";
+
+    html += "<div class='card'>";
+    html += "<h3>Member Export</h3>";
+    html += "<p>Download all members as CSV.</p>";
+    html += "<a href='/export/members'>Download CSV</a>";
+    html += "</div>";
+
     html += "</div>";
 
     std::vector<Book> allBooksForStats = bookService_.listBooks();
@@ -1007,6 +1019,18 @@ void WebServer::run(int port) {
     html += "<code>http://localhost:8080/export/loans</code>";
     html += "</div>";
 
+    html += "<div class='endpoint'>";
+    html += "<h3>GET /export/books</h3>";
+    html += "<p>Downloads all books as CSV.</p>";
+    html += "<code>http://localhost:8080/export/books</code>";
+    html += "</div>";
+
+    html += "<div class='endpoint'>";
+    html += "<h3>GET /export/members</h3>";
+    html += "<p>Downloads all members as CSV.</p>";
+    html += "<code>http://localhost:8080/export/members</code>";
+    html += "</div>";
+
     html += "</body>";
     html += "</html>";
 
@@ -1212,6 +1236,56 @@ void WebServer::run(int port) {
 
     response.set_header("Content-Disposition",
                         "attachment; filename=\"active_loans_export.csv\"");
+
+    response.set_content(csv, "text/csv");
+  });
+
+  server.Get("/export/books",
+             [this](const httplib::Request &, httplib::Response &response) {
+               std::vector<Book> books = bookService_.listBooks();
+
+               std::string csv;
+
+               csv += "id,title,author,available\n";
+
+               for (const Book &book : books) {
+                 csv += std::to_string(book.id());
+                 csv += ",";
+                 csv += book.title();
+                 csv += ",";
+                 csv += book.author();
+                 csv += ",";
+                 csv += (book.isAvailable() ? "1" : "0");
+                 csv += "\n";
+               }
+
+               response.set_header("Content-Disposition",
+                                   "attachment; filename=\"books_export.csv\"");
+
+               response.set_content(csv, "text/csv");
+             });
+
+  server.Get("/export/members", [this](const httplib::Request &,
+                                       httplib::Response &response) {
+    std::vector<Member> members = memberService_.listMembers();
+
+    std::string csv;
+
+    csv += "memberId,username,name,email\n";
+
+    for (const Member &member : members) {
+      csv += member.memberId();
+      csv += ",";
+      csv += member.username();
+      csv += ",";
+      csv += member.name();
+      csv += ",";
+      csv += member.email();
+      csv += "\n";
+    }
+
+    response.set_header("Content-Disposition",
+                        "attachment; filename=\"members_export.csv\"");
 
     response.set_content(csv, "text/csv");
   });

@@ -57,14 +57,27 @@ void WebServer::run(int port) {
 
                 hasAvailableBook = true;
 
-                html += "<div style='margin-bottom: 12px;'>";
+                html += "<div style='margin-bottom: 16px;'>";
+                
                 html += "<strong>";
                 html += book.title();
                 html += "</strong>";
+
                 html += " - ";
                 html += book.author();
                 html += " ";
+
                 html += "<span style='color: green;'>(Available)</span>";
+
+                html += "<form action='/borrow' method='post' style='margin-top: 4px;'>";
+                html += "<input type='hidden' name='bookId' value='";
+                html += std::to_string(book.id());
+                html += "'>";
+                html += "<label>Member ID: </label>";
+                html += "<input type='text' name='memberId'>";
+                html += "<button type='submit'>Borrow</button>";
+                html += "</form>";
+
                 html += "</div>";
             }
 
@@ -228,6 +241,84 @@ void WebServer::run(int port) {
 
             html += "</div>";
         }
+    }
+
+    html += "</body>";
+    html += "</html>";
+
+    response.set_content(html, "text/html");
+});
+
+    server.Post("/borrow", [this](const httplib::Request& request,
+                              httplib::Response& response) {
+    std::string bookIdValue;
+    std::string memberId;
+
+    if (request.has_param("bookId")) {
+        bookIdValue = request.get_param_value("bookId");
+    }
+
+    if (request.has_param("memberId")) {
+        memberId = request.get_param_value("memberId");
+    }
+
+    std::string html;
+
+    html += "<!DOCTYPE html>";
+    html += "<html>";
+    html += "<head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<title>Borrow Book</title>";
+    html += "</head>";
+    html += "<body>";
+
+    html += "<h1>Borrow Book</h1>";
+    html += "<a href='/'>Back to Home</a><br><br>";
+
+    if (bookIdValue.empty() || memberId.empty()) {
+        html += "<p>Missing book ID or member ID.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    }
+
+    int bookId = 0;
+
+    try {
+        bookId = std::stoi(bookIdValue);
+    } catch (const std::invalid_argument&) {
+        html += "<p>Invalid book ID.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    } catch (const std::out_of_range&) {
+        html += "<p>Invalid book ID.</p>";
+        html += "</body>";
+        html += "</html>";
+
+        response.set_content(html, "text/html");
+        return;
+    }
+
+    bool borrowOk = loanService_.borrowBook(
+        bookId,
+        memberId,
+        "2026-06-03",
+        "2026-06-17"
+    );
+
+    if (borrowOk) {
+        html += "<p style='color: green;'>Book borrowed successfully.</p>";
+        html += "<p>Member ID: ";
+        html += memberId;
+        html += "</p>";
+    } else {
+        html += "<p style='color: red;'>Failed to borrow book.</p>";
+        html += "<p>The book may be unavailable, or the member ID may be invalid.</p>";
     }
 
     html += "</body>";

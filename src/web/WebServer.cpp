@@ -142,6 +142,12 @@ void WebServer::run(int port) {
     html += "</div>";
 
     html += "<div class='card'>";
+    html += "<h3>Full Catalog</h3>";
+    html += "<p>View all books, including books currently on loan.</p>";
+    html += "<a href='/books'>Browse Catalog</a>";
+    html += "</div>";
+
+    html += "<div class='card'>";
     html += "<h3>My Loans</h3>";
     html += "<form action='/me' method='get'>";
     html += "<input type='text' name='id' placeholder='Member ID'>";
@@ -486,6 +492,113 @@ void WebServer::run(int port) {
     }
 
     html += "</p>";
+
+    html += "<p>";
+    html += "<a href='/books'>Back to Catalog</a>";
+    html += "</p>";
+
+    if (book.isAvailable()) {
+      html += "<h3>Borrow This Book</h3>";
+
+      html += "<form action='/borrow' method='post'>";
+
+      html += "<input type='hidden' name='bookId' value='";
+      html += std::to_string(book.id());
+      html += "'>";
+
+      html += "<input type='text' name='memberId' placeholder='Member ID'>";
+
+      html += "<br><br>";
+
+      html += "<button type='submit'>Borrow</button>";
+
+      html += "</form>";
+    }
+
+    html += "</body>";
+    html += "</html>";
+
+    response.set_content(html, "text/html");
+  });
+
+  server.Get("/books", [this](const httplib::Request &,
+                              httplib::Response &response) {
+    std::vector<Book> books = bookService_.listBooks();
+
+    std::string html;
+
+    html += "<!DOCTYPE html>";
+    html += "<html>";
+    html += "<head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<title>Book Catalog</title>";
+    html += "<style>";
+    html += "body { font-family: Arial, sans-serif; max-width: 1000px; margin: "
+            "40px auto; padding: 0 20px; }";
+    html +=
+        "table { border-collapse: collapse; width: 100%; margin-top: 16px; }";
+    html +=
+        "th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }";
+    html += "th { background: #f4f4f4; }";
+    html += ".available { color: green; font-weight: bold; }";
+    html += ".on-loan { color: red; font-weight: bold; }";
+    html += "a { text-decoration: none; }";
+    html += "</style>";
+    html += "</head>";
+    html += "<body>";
+
+    html += "<h1>Book Catalog</h1>";
+    html += "<a href='/'>Back to Home</a><br><br>";
+
+    if (books.empty()) {
+      html += "<p>No books found.</p>";
+    } else {
+      html += "<table>";
+      html += "<thead>";
+      html += "<tr>";
+      html += "<th>ID</th>";
+      html += "<th>Title</th>";
+      html += "<th>Author</th>";
+      html += "<th>Status</th>";
+      html += "</tr>";
+      html += "</thead>";
+      html += "<tbody>";
+
+      for (const Book &book : books) {
+        html += "<tr>";
+
+        html += "<td>";
+        html += std::to_string(book.id());
+        html += "</td>";
+
+        html += "<td>";
+        html += "<a href='/book?id=";
+        html += std::to_string(book.id());
+        html += "'>";
+        html += book.title();
+        html += "</a>";
+        html += "</td>";
+
+        html += "<td>";
+        html += book.author();
+        html += "</td>";
+
+        html += "<td>";
+
+        if (book.isAvailable()) {
+          html += "<span class='available'>Available</span>";
+        } else {
+          html += "<span class='on-loan'>On Loan</span>";
+        }
+
+        html += "</td>";
+
+        html += "</tr>";
+      }
+
+      html += "</tbody>";
+      html += "</table>";
+    }
 
     html += "</body>";
     html += "</html>";

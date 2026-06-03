@@ -221,7 +221,13 @@ void WebServer::run(int port) {
         html += "<body>";
 
         html += "<h1>Search Results</h1>";
-        html += "<a href='/'>Back to Home</a><br><br>";
+        
+        html += "<form action='/search' method='get'>";
+        html += "<input type='text' name='q' value='";
+        html += keyword;
+        html += "'>";
+        html += "<button type='submit'>Search</button>";
+        html += "</form><br>";
 
         if (keyword.empty()) {
             html += "<p>No search keyword provided.</p>";
@@ -430,11 +436,15 @@ void WebServer::run(int port) {
 
         if (borrowOk) {
             html += "<p style='color: green;'>Book borrowed successfully.</p>";
+            html += "<br>";
+            html += "<a href='/'>Return to Homepage</a>";
             html += "<p>Member ID: ";
             html += memberId;
             html += "</p>";
         } else {
             html += "<p style='color: red;'>Failed to borrow book.</p>";
+            html += "<br>";
+            html += "<a href='/'>Return to Homepage</a>";
             html += "<p>The book may be unavailable, or the member ID may be invalid.</p>";
         }
 
@@ -502,9 +512,13 @@ void WebServer::run(int port) {
 
         if (returnOk) {
             html += "<p style='color: green;'>Book returned successfully.</p>";
+            html += "<br>";
+            html += "<a href='/'>Return to Homepage</a>";
             html += "<p>If there was a reservation queue, the book was assigned automatically.</p>";
         } else {
             html += "<p style='color: red;'>Failed to return book.</p>";
+            html += "<br>";
+            html += "<a href='/'>Return to Homepage</a>";
             html += "<p>The loan ID may be invalid or already returned.</p>";
         }
 

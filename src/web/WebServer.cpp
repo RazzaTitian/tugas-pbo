@@ -176,6 +176,30 @@ void WebServer::run(int port) {
       }
     }
 
+    html += "<h2>Quick Access</h2>";
+
+    html += "<div class='nav-box'>";
+
+    html += "<div class='card'>";
+    html += "<h3>Member Portal</h3>";
+    html += "<p>View your loan history.</p>";
+    html += "<a href='/me?id=M003'>View Example Member</a>";
+    html += "</div>";
+
+    html += "<div class='card'>";
+    html += "<h3>API Documentation</h3>";
+    html += "<p>Browse all available API endpoints.</p>";
+    html += "<a href='/api'>Open API Docs</a>";
+    html += "</div>";
+
+    html += "<div class='card'>";
+    html += "<h3>Export Loans</h3>";
+    html += "<p>Download active loan data.</p>";
+    html += "<a href='/export/loans'>Download CSV</a>";
+    html += "</div>";
+
+    html += "</div>";
+
     html += "<h2>Library Statistics</h2>";
 
     html += "<div class='nav-box'>";
